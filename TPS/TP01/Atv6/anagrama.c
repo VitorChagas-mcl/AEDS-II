@@ -40,13 +40,13 @@ int verificar(char *s1, char *s2){
 int main(){
 	char str1[1000], str2[1000];
 
-	scanf("%s - %s", str1, str2);
+	scanf("%s %s", str1, str2);
 	tirarN(str1);
 	tirarN(str2);
 	while(!equal(str1, "FIM")){ // chamada da função para comparar strubgs
 		int test = verificar(str1, str2);// pegar o retorno da funçã
-		(test) ? printf("SIM\n") : printf("NÃO\n"); // Operador ternario se receber 1 ou 0 para sim ou nao
-		scanf("%s - %s", str1, str2); // scannea as proximas linhas
+		(test) ? printf("SIM\n") : printf("NAO\n"); // Operador ternario se receber 1 ou 0 para sim ou nao
+		scanf("%s %s", str1, str2); // scannea as proximas linhas
 		tirarN(str1);
 		tirarN(str2);
 	}		

@@ -1,13 +1,14 @@
+
+import java.util.Scanner;
+
 public class Inverter
 {
     public static String inverte(String s, int ind){
         String resp = ""; 
-        if(ind >= s.length())
+        if(ind == s.length())
             return resp;
-        
-        resp = inverte(s, ind + 1);
-        resp += s.charAt(ind);
-        return resp;
+    
+        return inverte(s, ind + 1) + s.charAt(ind) + resp;
     }
     
     public static boolean equal(String str, String str2){
@@ -21,13 +22,15 @@ public class Inverter
         return true;
     }       
 	public static void main(String[] args) {
-		String str = MyIO.readLine();
+        Scanner scan = new Scanner(System.in);
+		String str = scan.nextLine();
 		
 		while(!equal(str, "FIM")){
 		    String resp = inverte(str, 0);
 		    MyIO.println(resp);
-		    str = MyIO.readLine();
+		    str = scan.nextLine();
 		}
+        scan.close();
 	}
 }
 

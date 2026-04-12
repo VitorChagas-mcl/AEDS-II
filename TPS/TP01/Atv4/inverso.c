@@ -39,12 +39,12 @@ void inverter(char *s, char *invertido){//passagem por referencia para modificar
 int main(){
 
 	char msg[1000], resp[1000];
-	scanf("%s", msg);
+	fgets(msg, 1000, stdin);
 	tirarN(msg);
 	while(!equal(msg, "FIM")){
 		inverter(msg, resp);
 		printf("%s\n",resp);
-		scanf("%s", msg);
+		fgets(msg, 1000, stdin);
 		tirarN(msg);
 	}
 }

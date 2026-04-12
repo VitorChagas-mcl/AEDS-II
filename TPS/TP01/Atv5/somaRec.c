@@ -38,11 +38,8 @@ int main(){
 	
 	char linha[100];
 	
-	scanf("%s", linha);
-	tirarN(linha);
-	while(!equal(linha,"FIM")){
-		printf("%d\n",somaRec(linha));
-		scanf("%s", linha);
+	while(fgets(linha, 100, stdin) != NULL){
 		tirarN(linha);
+		printf("%d\n",somaRec(linha));
 	}
 }

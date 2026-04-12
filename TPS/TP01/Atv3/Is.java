@@ -101,7 +101,7 @@ class Is{
 		boolean x1, x2, x3, x4;
 	
 		linha = MyIO.readLine();//le a primeira
-		while(!equal(linha,"FIM ")){// verifica se a palavra é igual a FIM
+		while(!equal(linha,"FIM")){// verifica se a palavra é igual a FIM
 				//variaveis Xi pegando true ou false do retorno da função
 			x1 = SoVogais(linha);
 			x2 = SoCons(linha);
