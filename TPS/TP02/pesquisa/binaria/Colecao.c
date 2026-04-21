@@ -322,6 +322,3 @@ int main(){
 
     free(cr);//libero a colecao
 }
-#include <stdio.h>
-#include <stdio.h>
-#include <string.h>
