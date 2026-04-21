@@ -80,7 +80,11 @@ Restaurante* parse_restaurante(char *s){
            &r->id_restaurante, nome, cidade, &r->capacidade,
            &r->avaliacao, tipo, preco, hora_a, hora_f,
            data_a, aberto);
-
+           
+    for(int i = 0; aberto[i] != '\0'; i++){
+        if(aberto[i] == '\r' || aberto[i] == '\n' || aberto[i] == ' ')//verifico se existe algo apos a string
+            aberto[i] = '\0';
+    }
     r->aberto = (strcmp(aberto, "true") == 0);//verifica se o char aberto e true, se for r->aberto recebe true
     r->hora_abertura = parse_hora(hora_a);//chama da funcao para o parse_hora
     r->hora_fechamento = parse_hora(hora_f);// mesma chama da de cima para strings diferente
