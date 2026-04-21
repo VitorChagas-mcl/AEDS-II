@@ -1,1 +1,1 @@
-880222	1225	147	0.00
+880222	 Comparacoes: 1225	 Movimentos: 147	 Tempo: 0.0440

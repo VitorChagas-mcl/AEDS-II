@@ -277,7 +277,7 @@ int main(){
     inicio = clock();
     Selecao(r_ordenados, ordenados, &comp, &mov);
     fim = clock();
-    total_tempo = ((fim - inicio) / (double)CLOCKS_PER_SEC); 
+    total_tempo = ((fim - inicio) / (double)CLOCKS_PER_SEC) * 1000.0; 
 
     for(int i = 0; i < ordenados; i++) {
         char leitura[300];
@@ -288,7 +288,7 @@ int main(){
     FILE* arq_log = fopen("880222_selecao.txt", "w");
     
     if(arq_log != NULL){
-        fprintf(arq_log, "880222\tComparacoes: %d\tMovimentos: %d\tTempo: %.2lf\n", comp, mov, total_tempo);
+        fprintf(arq_log, "880222\t Comparacoes: %d\t Movimentos: %d\t Tempo: %.4lf\n", comp, mov, total_tempo);
         fclose(arq_log);
     }
 

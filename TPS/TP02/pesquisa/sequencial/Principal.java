@@ -78,7 +78,7 @@ class Data{
     // parse de data 
     public static Data parseData(String s){ 
         Scanner scan = new Scanner(s);// scanner da string 
-        scan.useDelimiter("-");// delimitacao por -
+        scan.useDelimiter("-");// delimitacao pro -
         int ano = scan.nextInt();//leitura dos valores
         int mes = scan.nextInt();
         int dia = scan.nextInt();
@@ -364,70 +364,60 @@ class ColecaoRestaurantes{
 }
 
 public class Principal{
-     public static int mov = 0;
-     public static int comp = 0;
+        public static int comp = 0;
 
-    public static void Insercao(Restaurante[] restaurantes, int n){
-      
-        for(int i = 1; i < n; i++){
-            Restaurante aux = restaurantes[i];
-            mov++;
-            int j = i - 1;
+        public static boolean pesquisaSequencial(Restaurante[] r, String nome, int n){
             
-            comp++;
-            while((j >= 0) && (aux.getCidade().compareTo(restaurantes[j].getCidade()) < 0)){
-                restaurantes[j + 1] = restaurantes[j];
-                mov++;
-                j--;
-
-                if(j >= 0) comp++;
+            for(int i = 0; i < n; i++){
+                comp++;
+                if(r[i].getNome().compareTo(nome) == 0){
+                    return true;
+                }
             }
-            mov++;
-            restaurantes[j + 1] = aux;
+            return false;
         }
-    }
 
-    public static long now(){
-        return new Date().getTime();
-    }
-
-    public static void main(String[] args) throws Exception{
+        public static void main(String[] args) throws Exception{
             Scanner scan = new Scanner(System.in);//scaner para leitura da entrada
-            ColecaoRestaurantes cr = ColecaoRestaurantes.lerCsv();//criar o colacao restaurante e preenche
             Restaurante[] r = new Restaurante[1000];
-            int r_ordenados = 0;
-
-            double inicio, fim, total_t;
-
-            String linha = scan.next();// le a primeira linha do pub.in
-                
-            while(linha.compareTo("-1") != 0){// verifica se é igual ao -1 para encerra
+            int cont = 0;
+            double inicio, fim, total_t = 0;
+            ColecaoRestaurantes cr = ColecaoRestaurantes.lerCsv();//criar o colacao restaurante e preenche
+            String linha = scan.nextLine();
+            while(linha.compareTo("-1") != 0){
+               
                int id = Integer.parseInt(linha);// parse int para pegar o valor de id
                Restaurante aux = cr.buscarPorId(id);//busca o restaurante
                if(aux != null){//verifica se é diferente de null
-                    r[r_ordenados] = aux;
-                    r_ordenados++;
+                 r[cont] = aux;
+                 cont++;
                }
 
-               linha = scan.next();//leitura da proxima linha
+               linha = scan.nextLine();//leitura da proxima linha
             }
-            scan.close();// fechamanto do scan
-            
+
+            linha = scan.nextLine();
             inicio = System.nanoTime();
-            Insercao(r, r_ordenados);
+            while(linha.compareTo("FIM") != 0){
+                if(pesquisaSequencial(r, linha, cont) == true){
+                    System.out.println("SIM");
+                }else{
+                    System.out.println("NAO");        
+                }
+
+                linha = scan.nextLine();
+            }
             fim = System.nanoTime();
-  
             total_t = (fim - inicio)/1_000_000.0;
+            scan.close();// fechamanto do scan
 
-            //System.out.println("inicio: " + inicio + " " + "Fim: " + fim + " " + "Total: " + total_t);
-            for(int i = 0; i < r_ordenados; i++)
-                System.out.println(r[i].formatar());
-
-            FileWriter arq = new FileWriter("880222_insercao.txt");
+            FileWriter arq = new FileWriter("880222_sequencial.txt");
             PrintWriter gravarArq = new PrintWriter(arq);
 
-            gravarArq.printf("880222\t Comparacoes: %d\t Movimentacao: %d\t Tempo: %.4f\n", comp, mov, total_t);
+            gravarArq.printf("880222\t Comparacoes: %d\t Tempo: %.4f\n", comp, total_t);
 
             gravarArq.close();
         }
+
+
  }

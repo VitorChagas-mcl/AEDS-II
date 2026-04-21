@@ -1,1 +1,1 @@
-880222	 Comparacoes: 643	 Movimentacao: 693	 Tempo: 0,00
+880222	 Comparacoes: 643	 Movimentacao: 693	 Tempo: 0,1027
