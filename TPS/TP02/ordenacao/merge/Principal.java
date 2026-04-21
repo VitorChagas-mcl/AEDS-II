@@ -1,5 +1,5 @@
-import java.io.*;
 import java.util.*;
+import java.io.*;
 
 class Hora{
     private int hora;
@@ -78,7 +78,7 @@ class Data{
     // parse de data 
     public static Data parseData(String s){ 
         Scanner scan = new Scanner(s);// scanner da string 
-        scan.useDelimiter("-");// delimitacao pro -
+        scan.useDelimiter("-");// delimitacao por -
         int ano = scan.nextInt();//leitura dos valores
         int mes = scan.nextInt();
         int dia = scan.nextInt();
@@ -364,21 +364,106 @@ class ColecaoRestaurantes{
 }
 
 public class Principal{
- 
-        public static void main(String[] args) throws Exception{
+     public static int mov = 0;
+     public static int comp = 0;
+    
+     public static void merge(Restaurante[] rest, int esq, int dir){
+			 if (esq < dir){
+         			int meio = (esq + dir) / 2;
+         			merge(rest,esq, meio);
+         			merge(rest,meio + 1, dir);
+         			intercalar(rest,esq, meio, dir);
+      			}
+	 }
+
+		public static void intercalar(Restaurante[] rest, int esq, int meio, int dir){ // Logica refinada no Claude AI pq meu codigo estava horroroso de feio fedorento
+      			int n1,n2,i,j,k;
+      			
+
+			//Definir tamanho dos dois subarrays
+			n1 = meio - esq + 1;
+                        n2 = dir - meio;
+
+      			Restaurante[] a1 = new Restaurante[n1 + 1];
+      			Restaurante[] a2 = new Restaurante[n2 + 1];
+
+      			//Inicializar primeiro subarray
+      			for(i = 0; i < n1; i++){
+         			a1[i] = rest[esq+i];
+				mov++;
+      			}
+
+      			//Inicializar segundo subarray
+      			for(j = 0; j < n2; j++){
+         			a2[j] = rest[meio+j+1];
+				mov++;
+      			}
+
+
+      			//Intercalacao propriamente dita
+      			for(i = j = 0, k = esq; k <= dir; k++){
+				comp++;
+    				int cmp;
+    				if(i >= n1){ // garante que i e j ainda estão acessiveis (tive esse erro)
+        				cmp = 1;
+    				} else if(j >= n2){
+        				cmp = -1;
+    				} else {
+        				cmp = a1[i].getCidade().compareTo(a2[j].getCidade()); // primeira comparação entre cidades
+        				if(cmp == 0)
+            					cmp = a1[i].getNome().compareTo(a2[j].getNome());// desempate
+    				}
+
+    				if(cmp <= 0){
+        				rest[k] = a1[i++];
+    				} else {
+        				rest[k] = a2[j++];
+    				}
+    				mov++;
+      			}
+   		}
+
+    public static long now(){
+        return new Date().getTime();
+    }
+
+    public static void main(String[] args) throws Exception{
             Scanner scan = new Scanner(System.in);//scaner para leitura da entrada
             ColecaoRestaurantes cr = ColecaoRestaurantes.lerCsv();//criar o colacao restaurante e preenche
+            Restaurante[] r = new Restaurante[1000];
+            int r_ordenados = 0;
+
+            double inicio, fim, total_t;
+
             String linha = scan.next();// le a primeira linha do pub.in
                 
             while(linha.compareTo("-1") != 0){// verifica se é igual ao -1 para encerra
                int id = Integer.parseInt(linha);// parse int para pegar o valor de id
-               Restaurante r = cr.buscarPorId(id);//busca o restaurante
-               if(r != null){//verifica se é diferente de null
-                  System.out.println(r.formatar());//se for printa o restaurante formatado
+               Restaurante aux = cr.buscarPorId(id);//busca o restaurante
+               if(aux != null){//verifica se é diferente de null
+                    r[r_ordenados] = aux;
+                    r_ordenados++;
                }
 
                linha = scan.next();//leitura da proxima linha
             }
             scan.close();// fechamanto do scan
+            
+            inicio = System.nanoTime();
+            merge(r,0, r_ordenados - 1);
+            fim = System.nanoTime();
+  
+            total_t = (fim - inicio)/1_000_000.0;
+
+            //System.out.println("inicio: " + inicio + " " + "Fim: " + fim + " " + "Total: " + total_t);
+            for(int i = 0; i < r_ordenados; i++)
+                System.out.println(r[i].formatar());
+
+            FileWriter arq = new FileWriter("880222_insercao.txt");
+            PrintWriter gravarArq = new PrintWriter(arq);
+
+            gravarArq.printf("880222\t Comparacoes: %d\t Movimentacao: %d\t Tempo: %.4f\n", comp, mov, total_t);
+
+            gravarArq.close();
         }
  }

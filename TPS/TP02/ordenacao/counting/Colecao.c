@@ -4,11 +4,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-//Variaveis globais para contar movimentação
-//e comparação
 int mov = 0;
 int comp = 0;
-
 //criei todas as structs que preciso
 typedef struct Data{
     int dia;
@@ -147,7 +144,7 @@ void formatar_restaurante(Restaurante* restaurante, char* buffer){
 
 void ler_csv_colecao(Colecao_Restaurante* colecao, char* path){
     
-        FILE *arq = fopen(path, "r");// abre o arquivo
+    FILE *arq = fopen(path, "r");// abre o arquivo
 
     if(arq == NULL){//verifica se o ponteiro é null
         printf("Erro ao abrir arquivo!");
@@ -225,39 +222,48 @@ int transformarInt(char *s){// funcao para transforma o char em int
     return resposta;// retorno o valor do id
 }
 
-void swap(Restaurante *i, Restaurante *j) {
+void swap(Restaurante *i, Restaurante *j, int* mov) {
    Restaurante temp = *i;
    *i = *j;
    *j = temp;
    mov += 3;
 }
 
-void quick_sort_rec(Restaurante *array, int esq, int dir) {
-    int i = esq, j = dir;
-    Restaurante pivo = array[(dir+esq)/2];
-    mov++;
-    while (i <= j) {
-        while (comp++, array[i].avaliacao < pivo.avaliacao ||
-                (array[i].avaliacao == pivo.avaliacao &&
-                 strcmp(array[i].nome, pivo.nome) < 0)) i++;
-        while (comp++, array[j].avaliacao > pivo.avaliacao || 
-               (array[j].avaliacao == pivo.avaliacao) && 
-               strcmp(array[j].nome, pivo.nome) > 0) j--;
-        if (i <= j) {
-            swap(array + i, array + j);
-            i++;
-            j--;
+int getMaior(Restaurante array[], int n) {
+    int maior = array[0].capacidade;
+
+    for (int i = 0; i < n; i++) {
+        comp++;
+        if(maior < array[i].capacidade){
+            maior = array[i].capacidade;
         }
     }
-    if (esq < j)  quick_sort_rec(array, esq, j);
-    if (i < dir)  quick_sort_rec(array, i, dir);
+    return maior;
 }
 
-void quick_sort(Restaurante *r, int n) {
-    quick_sort_rec(r, 0, n-1);
+void counting_sort(Restaurante array[], int n) {
+    //Array para contar o numero de ocorrencias de cada elemento
+    int tamCount = getMaior(array, n) + 1;
+    int count[tamCount];
+    Restaurante ordenado[n];
+
+    //Inicializar cada posicao do array de contagem
+    for (int i = 0; i < tamCount; count[i] = 0, i++);
+
+    //Agora, o count[i] contem o numero de elemento iguais a i
+    for (int i = 0; i < n; count[array[i].capacidade]++, i++);
+
+    //Agora, o count[i] contem o numero de elemento menores ou iguais a i
+    for(int i = 1; i < tamCount; count[i] += count[i-1], i++);
+
+    //Ordenando
+    for(int i = n-1; i >= 0; mov++, ordenado[count[array[i].capacidade]-1] = array[i], count[array[i].capacidade]--, i--);
+
+    //Copiando para o array original
+    for(int i = 0; i < n; mov++, array[i] = ordenado[i], i++);
 }
 
-int main(){
+int  main(){
    /*pequeno teste para ver se esta funcionando
     Data d = parse_data("2026-04-13");
     char b[11];
@@ -270,15 +276,15 @@ int main(){
     //ver o timer 
     clock_t inicio, fim;
     double total_tempo;
-    
+
     //crio a colecao
     Colecao_Restaurante* cr = ler_csv();
     
     //Criando um array de restaurantes ordenados, e um int para saber os ordenados
     Restaurante r_ordenados[1000];
     int ordenados = 0;
-   
-    char linha[50];
+
+    char linha[5];
     scanf("%s", linha);//leio a linha
     while(strcmp(linha, "-1") != 0){//comparo se é diferente de -1
         int id = transformarInt(linha);//transformo o valor
@@ -291,20 +297,22 @@ int main(){
         scanf("%s", linha);// scan para a proxima linha
     }
     
+    //inicio do clock + selecao
     inicio = clock();
-    quick_sort(r_ordenados, ordenados);
+    counting_sort(r_ordenados, ordenados);
     fim = clock();
     total_tempo = ((fim - inicio) / (double)CLOCKS_PER_SEC) * 1000.0; 
-    
-    for(int i = 0; i < ordenados; i++){
-        char linha[100];
-        formatar_restaurante(&r_ordenados[i],linha);
-        printf("%s\n", linha);
+
+    for(int i = 0; i < ordenados; i++) {
+        char leitura[300];
+        formatar_restaurante(&r_ordenados[i], leitura);
+        printf("%s\n", leitura);
     }
-    FILE* arq_log = fopen("880222_quicksort.txt", "w");
+
+    FILE* arq_log = fopen("880222_selecao.txt", "w");
     
     if(arq_log != NULL){
-        fprintf(arq_log, "880222\t Comparacoes: %d\t Movimentacoes: %d\t Tempo: %.4lf\n", comp, mov, total_tempo);
+        fprintf(arq_log, "880222\t Comparacoes: %d\t Movimentos: %d\t Tempo: %.4lf\n", comp, mov, total_tempo);
         fclose(arq_log);
     }
 
@@ -316,6 +324,3 @@ int main(){
 
     free(cr);//libero a colecao
 }
-#include <stdio.h>
-#include <stdio.h>
-#include <string.h>

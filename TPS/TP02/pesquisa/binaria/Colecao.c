@@ -141,7 +141,7 @@ void formatar_restaurante(Restaurante* restaurante, char* buffer){
 
 void ler_csv_colecao(Colecao_Restaurante* colecao, char* path){
     
-    FILE *arq = fopen("/tmp/restaurantes.csv", "r");// abre o arquivo
+    FILE *arq = fopen(path, "r");// abre o arquivo
 
     if(arq == NULL){//verifica se o ponteiro é null
         printf("Erro ao abrir arquivo!");
