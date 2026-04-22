@@ -83,6 +83,7 @@ Restaurante* parse_restaurante(char *s){
            &r->id_restaurante, nome, cidade, &r->capacidade,
            &r->avaliacao, tipo, preco, hora_a, hora_f,
            data_a, aberto);
+
     for(int i = 0; aberto[i] != '\0'; i++){
         if(aberto[i] == '\r' || aberto[i] == '\n' || aberto[i] == ' ')//verifico se existe algo apos a string
             aberto[i] = '\0';
@@ -278,7 +279,7 @@ int main(){
     Colecao_Restaurante* cr = ler_csv();
     
     //Criando um array de restaurantes ordenados, e um int para saber os ordenados
-    Restaurante r_ordenados[1000];
+    Restaurante* r_ordenados = (Restaurante*)malloc(cr->tamanho * sizeof(Restaurante));
     int ordenados = 0;
    
     char linha[50];
@@ -316,7 +317,7 @@ int main(){
         liberar_restaurante(&cr->restaurante[i]);//libero os vetores criado de cada posicao
     }
     free(cr->restaurante);//libero o vetor de colecao restaurante
-
+    free(r_ordenados);//libera o vetor de restaurantes ordenados
     free(cr);//libero a colecao
 }
 #include <stdio.h>

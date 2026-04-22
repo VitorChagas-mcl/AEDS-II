@@ -274,7 +274,7 @@ int main(){
     Colecao_Restaurante* cr = ler_csv();
     
     //Criando um array de restaurantes ordenados, e um int para saber os ordenados
-    Restaurante r_ordenados[1000];
+    Restaurante* r_ordenados = (Restaurante*)malloc(cr->tamanho * sizeof(Restaurante));
     int ordenados = 0;
     int comp = 0;
     char linha[50];
@@ -323,6 +323,6 @@ int main(){
         liberar_restaurante(&cr->restaurante[i]);//libero os vetores criado de cada posicao
     }
     free(cr->restaurante);//libero o vetor de colecao restaurante
-
+    free(r_ordenados);//libera o vetor de restaurantes ordenados
     free(cr);//libero a colecao
 }
