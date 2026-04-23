@@ -1,1 +1,1 @@
-880222	 Comparacoes: 569	 Tempo: 0.0690
+880222	 Comparacoes: 1135	 Tempo: 0.0890

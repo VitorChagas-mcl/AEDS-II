@@ -236,28 +236,26 @@ void swap(Restaurante *i, Restaurante *j) {
    mov += 3;
 }
 
-void quick_sort_rec(Restaurante *array, int esq, int dir) {
-    int i = esq, j = dir;
-    Restaurante pivo = array[(dir+esq)/2];
-    mov++;
-    while (i <= j) {
-        while (comp++, array[i].avaliacao < pivo.avaliacao ||
-                (array[i].avaliacao == pivo.avaliacao &&
-                 strcmp(array[i].nome, pivo.nome) < 0)) i++;
-        while (comp++, array[j].avaliacao > pivo.avaliacao || 
-               (array[j].avaliacao == pivo.avaliacao) && 
-               strcmp(array[j].nome, pivo.nome) > 0) j--;
-        if (i <= j) {
-            swap(array + i, array + j);
-            i++;
-            j--;
-        }
-    }
-    if (esq < j)  quick_sort_rec(array, esq, j);
-    if (i < dir)  quick_sort_rec(array, i, dir);
+void quick_sort_rec(Restaurante rest[], int esq, int dir) {
+        int i = esq, j = dir;
+    	double pivo = rest[(dir+esq)/2].avaliacao; // pivot no meio
+	    char* pivo_nome = rest[(dir + esq) / 2].nome; // colocando o nome do pivot em uma string para facilitar a comparação de desempate
+    	while (i <= j) {
+        	while (++comp && (rest[i].avaliacao < pivo || (rest[i].avaliacao == pivo && strcmp(rest[i].nome, pivo_nome) < 0))) 
+                    i++;
+            while (++comp && (rest[j].avaliacao >  pivo || (rest[j].avaliacao == pivo && strcmp(rest[j].nome, pivo_nome) > 0))) 
+                    j--;
+            if(i <= j) {
+            		swap(&rest[i], &rest[j]);
+            		i++;
+            		j--;
+        	}	
+    	}
+    	if (esq < j)  quick_sort_rec(rest, esq, j);
+    	if (i < dir)  quick_sort_rec(rest, i, dir);   
 }
 
-void quick_sort(Restaurante *r, int n) {
+void quick_sort(Restaurante r[], int n) {
     quick_sort_rec(r, 0, n-1);
 }
 
@@ -279,10 +277,10 @@ int main(){
     Colecao_Restaurante* cr = ler_csv();
     
     //Criando um array de restaurantes ordenados, e um int para saber os ordenados
-    Restaurante* r_ordenados = (Restaurante*)malloc(cr->tamanho * sizeof(Restaurante));
+    Restaurante r_ordenados[1000];
     int ordenados = 0;
    
-    char linha[50];
+    char linha[5];
     scanf("%s", linha);//leio a linha
     while(strcmp(linha, "-1") != 0){//comparo se é diferente de -1
         int id = transformarInt(linha);//transformo o valor
@@ -301,7 +299,7 @@ int main(){
     total_tempo = ((fim - inicio) / (double)CLOCKS_PER_SEC) * 1000.0; 
     
     for(int i = 0; i < ordenados; i++){
-        char linha[100];
+        char linha[300];
         formatar_restaurante(&r_ordenados[i],linha);
         printf("%s\n", linha);
     }
@@ -317,9 +315,6 @@ int main(){
         liberar_restaurante(&cr->restaurante[i]);//libero os vetores criado de cada posicao
     }
     free(cr->restaurante);//libero o vetor de colecao restaurante
-    free(r_ordenados);//libera o vetor de restaurantes ordenados
     free(cr);//libero a colecao
 }
-#include <stdio.h>
-#include <stdio.h>
-#include <string.h>
+    

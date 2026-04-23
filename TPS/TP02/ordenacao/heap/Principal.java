@@ -368,8 +368,60 @@ public class Principal{
      public static int comp = 0;
     
      public static void merge(Restaurante[] rest, int esq, int dir){
-			 
-	 }
+	            if (esq < dir){
+         			int meio = (esq + dir) / 2;
+         			merge(rest,esq, meio);
+         			merge(rest,meio + 1, dir);
+         			intercalar(rest,esq, meio, dir);
+      			}
+		}
+
+		public static void intercalar(Restaurante[] rest, int esq, int meio, int dir){ // Logica refinada no Claude AI pq meu codigo estava horroroso de feio fedorento
+      			int n1,n2,i,j,k;
+      			
+
+			//Definir tamanho dos dois subarrays
+			n1 = meio - esq + 1;
+                        n2 = dir - meio;
+
+      			Restaurante[] a1 = new Restaurante[n1 + 1];
+      			Restaurante[] a2 = new Restaurante[n2 + 1];
+
+      			//Inicializar primeiro subarray
+      			for(i = 0; i < n1; i++){
+         			a1[i] = rest[esq+i];
+				mov++;
+      			}
+
+      			//Inicializar segundo subarray
+      			for(j = 0; j < n2; j++){
+         			a2[j] = rest[meio+j+1];
+				mov++;
+      			}
+
+
+      			//Intercalacao propriamente dita
+      			for(i = j = 0, k = esq; k <= dir; k++){
+				comp++;
+    				int cmp;
+    				if(i >= n1){ // garante que i e j ainda estão acessiveis (tive esse erro)
+        				cmp = 1;
+    				} else if(j >= n2){
+        				cmp = -1;
+    				} else {
+        				cmp = a1[i].getCidade().compareTo(a2[j].getCidade()); // primeira comparação entre cidades
+        				if(cmp == 0)
+            					cmp = a1[i].getNome().compareTo(a2[j].getNome());// desempate
+    				}
+
+    				if(cmp <= 0){
+        				rest[k] = a1[i++];
+    				} else {
+        				rest[k] = a2[j++];
+    				}
+    				mov++;
+      			}
+   		}
 
     public static long now(){
         return new Date().getTime();

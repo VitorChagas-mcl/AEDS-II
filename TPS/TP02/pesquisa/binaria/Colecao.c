@@ -239,7 +239,7 @@ void Selecao(Restaurante r[], int n){
             }
         }
         swap(&r[i], &r[menor]);
-    }
+    }   
 }
 
 int pesquisa_binaria(Restaurante *r, char* nome, int n, int *comp){
@@ -249,8 +249,14 @@ int pesquisa_binaria(Restaurante *r, char* nome, int n, int *comp){
         int compara = strcmp(r[meio].nome, nome);
         (*comp)++;
         if (compara == 0) return meio;
-        else if (compara < 0) esq = meio + 1;
-        else dir = meio - 1;
+        else{
+            (*comp)++;
+            if (compara < 0){
+                esq = meio + 1;
+            }else{
+                dir = meio - 1;
+            }
+        }
     }
     return -1;
 }
@@ -277,7 +283,7 @@ int main(){
     Restaurante* r_ordenados = (Restaurante*)malloc(cr->tamanho * sizeof(Restaurante));
     int ordenados = 0;
     int comp = 0;
-    char linha[50];
+    char linha[100];
     scanf("%s", linha);//leio a linha
     while(strcmp(linha, "-1") != 0){//comparo se é diferente de -1
         int id = transformarInt(linha);//transformo o valor
@@ -292,9 +298,14 @@ int main(){
     
     Selecao(r_ordenados, ordenados);
     
-    getchar();
-    scanf("%[^\n]", linha);
-    getchar();
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+
+    fgets(linha,sizeof(linha), stdin);
+    for(int i = 0; linha[i] != '\0';i++){
+        if(linha[i] == '\r' || linha[i] == '\n')
+            linha[i] = '\0';
+    }
 
     inicio = clock();
 
@@ -304,8 +315,12 @@ int main(){
         }else{
             printf("NAO\n");
         }
-      scanf("%[^\n]", linha);
-      getchar();
+        fgets(linha, sizeof(linha), stdin);
+        for(int i = 0; linha[i] != '\0';i++){
+            if(linha[i] == '\r' || linha[i] == '\n') {
+                linha[i] = '\0';
+            }
+        }
     }
 
     fim = clock();
