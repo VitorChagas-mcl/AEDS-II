@@ -459,7 +459,7 @@ public class Principal{
             for(int i = 0; i < r_ordenados; i++)
                 System.out.println(r[i].formatar());
 
-            FileWriter arq = new FileWriter("880222_insercao.txt");
+            FileWriter arq = new FileWriter("880222_merge.txt");
             PrintWriter gravarArq = new PrintWriter(arq);
 
             gravarArq.printf("880222\t Comparacoes: %d\t Movimentacao: %d\t Tempo: %.4f\n", comp, mov, total_t);
