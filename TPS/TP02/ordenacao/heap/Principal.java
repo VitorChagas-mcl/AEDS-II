@@ -366,63 +366,67 @@ class ColecaoRestaurantes{
 public class Principal{
      public static int mov = 0;
      public static int comp = 0;
-    
-     public static void merge(Restaurante[] rest, int esq, int dir){
-	            if (esq < dir){
-         			int meio = (esq + dir) / 2;
-         			merge(rest,esq, meio);
-         			merge(rest,meio + 1, dir);
-         			intercalar(rest,esq, meio, dir);
-      			}
-		}
-
-		public static void intercalar(Restaurante[] rest, int esq, int meio, int dir){ // Logica refinada no Claude AI pq meu codigo estava horroroso de feio fedorento
-      			int n1,n2,i,j,k;
-      			
-
-			//Definir tamanho dos dois subarrays
-			n1 = meio - esq + 1;
-                        n2 = dir - meio;
-
-      			Restaurante[] a1 = new Restaurante[n1 + 1];
-      			Restaurante[] a2 = new Restaurante[n2 + 1];
-
-      			//Inicializar primeiro subarray
-      			for(i = 0; i < n1; i++){
-         			a1[i] = rest[esq+i];
-				mov++;
-      			}
-
-      			//Inicializar segundo subarray
-      			for(j = 0; j < n2; j++){
-         			a2[j] = rest[meio+j+1];
-				mov++;
-      			}
-
-
-      			//Intercalacao propriamente dita
-      			for(i = j = 0, k = esq; k <= dir; k++){
-				comp++;
-    				int cmp;
-    				if(i >= n1){ // garante que i e j ainda estão acessiveis (tive esse erro)
-        				cmp = 1;
-    				} else if(j >= n2){
-        				cmp = -1;
-    				} else {
-        				cmp = a1[i].getCidade().compareTo(a2[j].getCidade()); // primeira comparação entre cidades
-        				if(cmp == 0)
-            					cmp = a1[i].getNome().compareTo(a2[j].getNome());// desempate
-    				}
-
-    				if(cmp <= 0){
-        				rest[k] = a1[i++];
-    				} else {
-        				rest[k] = a2[j++];
-    				}
-    				mov++;
-      			}
-   		}
-
+     public static void swap(Restaurante[] rest, int i, int j){
+             Restaurante aux = rest[i];
+             rest[i] = rest[j];
+             rest[j] = aux;
+             mov += 3;
+     }
+ 
+ 
+         public static void heapsort(Restaurante[] rest, int n){
+             Restaurante[] tmp = new Restaurante[n + 1]; // altera o vetor ignorando a posição zero
+             for(int i = 0; i < n; i++){
+                 tmp[i + 1] = rest[i];
+             }
+ 
+ 
+             for(int tamHeap = 2; tamHeap <= n; tamHeap++){
+                 construir(tmp,tamHeap);
+             }
+ 
+             int tamHeap = n;
+             while(tamHeap > 1){
+                 swap(tmp,1,tamHeap--);
+                 reconstruir(tmp,tamHeap);
+             }
+ 
+ 
+             for(int i = 0; i < n; i++){
+                 rest[i] = tmp[i + 1];
+             }
+         }
+ 
+         public static void construir(Restaurante[] rest, int tamHeap){
+             for(int i = tamHeap; i > 1 && maiorData(rest[i],rest[i / 2]); i /= 2){
+                 swap(rest, i, i/2);
+             }
+         }
+ 
+         public static void reconstruir(Restaurante[] rest, int tamHeap){
+             int i = 1;
+             while(i <= tamHeap/2){
+                 int filho = getMaiorFilho(rest,i,tamHeap);
+                 comp++;
+                 if(maiorData(rest[filho], rest[i])){
+                     swap(rest,i,filho);
+                     i = filho;
+                 }else{
+                     break;
+                 }
+             }
+         }
+ 
+         public static int getMaiorFilho(Restaurante[] rest,int i, int tamHeap){
+             int filho;
+             comp++;
+             if(2 * i == tamHeap || maiorData(rest[2 * i], rest[2 * i + 1])){
+                filho = 2 * i;
+             }else{
+                 filho = 2 * i + 1;
+             }
+            return filho;
+	}
     public static long now(){
         return new Date().getTime();
     }
