@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <time.h>
 //criei todas as structs que preciso
 typedef struct Data{
     int dia;
@@ -77,7 +76,7 @@ Restaurante* parse_restaurante(char *s){
            &r->id_restaurante, nome, cidade, &r->capacidade,
            &r->avaliacao, tipo, preco, hora_a, hora_f,
            data_a, aberto);
-
+    
     for(int i = 0; aberto[i] != '\0'; i++){
         if(aberto[i] == '\r' || aberto[i] == '\n' || aberto[i] == ' ')//verifico se existe algo apos a string
             aberto[i] = '\0';
@@ -86,7 +85,7 @@ Restaurante* parse_restaurante(char *s){
     r->hora_abertura = parse_hora(hora_a);//chama da funcao para o parse_hora
     r->hora_fechamento = parse_hora(hora_f);// mesma chama da de cima para strings diferente
     r->data_abertura = parse_data(data_a);// chama da funcao parse_data 
-    
+
     int tam = 0;//crio uma variavel para pegar o tamanho
     while(nome[tam] != '\0') tam++;//leio ate o \0
     r->nome = (char*)malloc((tam + 1) * sizeof(char));// e aloco o tamanho exato do vetor e coloco + 1
@@ -108,7 +107,7 @@ Restaurante* parse_restaurante(char *s){
     while(tipo[tam] != '\0') tam++;//pega o valor
     for(int i = 0; tipo[i] != '\0'; i++)//leitura ate o \0
         if(tipo[i] == ';') tipo[i] = ',';//substitui o ; por ,
-/*/*/
+
     r->tipo_cozinha = (char**)malloc(1 * sizeof(char*));//cria uma posicao do char duplo
     r->tipo_cozinha[0] = (char*)malloc((tam + 1) * sizeof(char));//aloco o tamanho da quantidade de tipos exato
 
@@ -146,7 +145,6 @@ void formatar_restaurante(Restaurante* restaurante, char* buffer){
 void ler_csv_colecao(Colecao_Restaurante* colecao, char* path){
     
     FILE *arq = fopen(path, "r");// abre o arquivo
-
     if(arq == NULL){//verifica se o ponteiro é null
         printf("Erro ao abrir arquivo!");
         return;// se for retorna nada
@@ -185,13 +183,13 @@ Colecao_Restaurante* ler_csv(){//funcao para cria a colecao
 
         fclose(arq);// fecho o arquivo
 
-        Colecao_Restaurante* novaCole = (Colecao_Restaurante*) malloc(sizeof(Colecao_Restaurante));// crio uma colacao
-        if(novaCole == NULL){// se a colacao nao for aloca
+        Colecao_Restaurante* novaCole = (Colecao_Restaurante*) malloc(sizeof(Colecao_Restaurante));// crio uma colecao
+        if(novaCole == NULL){// se a colecao nao for aloca
             printf("Erro ao alocar Colecao!");
             return NULL;// retorna null
         }
         novaCole->tamanho = tam - 1;// recebe o tamanho exata da colecao
-        novaCole->restaurante = (Restaurante*)malloc((tam - 1) * sizeof(Restaurante));// crio o vetor de restauanrete
+        novaCole->restaurante = (Restaurante*)malloc((tam - 1) * sizeof(Restaurante));// crio o vetor de restaurante
         if(novaCole->restaurante == NULL){// verifico se a alocacao deu certo
             printf("Erro ao alocar restaurante!");
             return NULL;// se nao der retorna null
@@ -201,7 +199,7 @@ Colecao_Restaurante* ler_csv(){//funcao para cria a colecao
       return novaCole;// retorno uma nova colecao
 }
 
-int buscar_id(Colecao_Restaurante* colecao, int id_buscado) {// funcao para buscar o restaurante
+int buscarId(Colecao_Restaurante* colecao, int id_buscado) {// funcao para buscar o restaurante
     for (int i = 0; i < colecao->tamanho; i++) {//pego o tamanho da colecao
         if (colecao->restaurante[i].id_restaurante == id_buscado) {// e procuro o id buscado do restaurante
             return i; // retorno a posicao
@@ -223,45 +221,6 @@ int transformarInt(char *s){// funcao para transforma o char em int
     return resposta;// retorno o valor do id
 }
 
-void swap(Restaurante *i, Restaurante *j) {
-   Restaurante temp = *i;
-   *i = *j;
-   *j = temp;
-}
-
-void Selecao(Restaurante r[], int n){
-    
-    for(int i = 0; i < n - 1; i++){
-        int menor = i;
-        for(int j = i + 1; j < n; j++){
-            if(strcmp(r[j].nome, r[menor].nome) < 0){
-                menor = j;
-            }
-        }
-        swap(&r[i], &r[menor]);
-    }   
-}
-
-int pesquisa_binaria(Restaurante *r, char* nome, int n, int *comp){
-    int esq = 0, dir = n - 1;
-    while (esq <= dir) {
-        int meio = (esq + dir) / 2;
-        int compara = strcmp(r[meio].nome, nome);
-        (*comp)++;
-        if (compara == 0) return meio;
-        else{
-            (*comp)++;
-            if (compara < 0){
-                esq = meio + 1;
-            }else{
-                dir = meio - 1;
-            }
-        }
-    }
-    return -1;
-}
-
-
 int main(){
    /*pequeno teste para ver se esta funcionando
     Data d = parse_data("2026-04-13");
@@ -272,72 +231,27 @@ int main(){
     char s[6];
     formatar_hora(&h, s);
     printf("%s\n", s);*/
-    //ver o timer 
-    clock_t inicio, fim;
-    double total_tempo;
-    
-    //crio a colecao
+    //crio a colecao e retorno completo
     Colecao_Restaurante* cr = ler_csv();
     
-    //Criando um array de restaurantes ordenados, e um int para saber os ordenados
-    Restaurante* r_ordenados = (Restaurante*)malloc(cr->tamanho * sizeof(Restaurante));
-    int ordenados = 0;
-    int comp = 0;
-    char linha[100];
+    char linha[5];
     scanf("%s", linha);//leio a linha
     while(strcmp(linha, "-1") != 0){//comparo se é diferente de -1
         int id = transformarInt(linha);//transformo o valor
 
-        int id_buscado = buscar_id(cr, id);// busca o id na lista
-        if(id_buscado != -1){//verifico se é diferete de -1
-           r_ordenados[ordenados] = cr->restaurante[id_buscado];  
-           ordenados++;
+        int idBuscado = buscarId(cr, id);// busca o id na lista
+        if(idBuscado != -1){//verifico se é diferete de -1
+            char leitura[300];
+            formatar_restaurante(&(cr->restaurante[idBuscado]), leitura);//fomato o restaurante e passo para o char leitura
+            printf("%s\n", leitura);//print do restaurante formatado
         }
         scanf("%s", linha);// scan para a proxima linha
     }
-    
-    Selecao(r_ordenados, ordenados);
-    
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF);
-
-    fgets(linha,sizeof(linha), stdin);
-    for(int i = 0; linha[i] != '\0';i++){
-        if(linha[i] == '\r' || linha[i] == '\n')
-            linha[i] = '\0';
-    }
-
-    inicio = clock();
-
-    while(strcmp(linha, "FIM") != 0){
-        if(pesquisa_binaria(r_ordenados, linha, ordenados, &comp) != -1){
-            printf("SIM\n");
-        }else{
-            printf("NAO\n");
-        }
-        fgets(linha, sizeof(linha), stdin);
-        for(int i = 0; linha[i] != '\0';i++){
-            if(linha[i] == '\r' || linha[i] == '\n') {
-                linha[i] = '\0';
-            }
-        }
-    }
-
-    fim = clock();
-    total_tempo = ((fim - inicio) / (double)CLOCKS_PER_SEC) * 1000.0; 
-
-    FILE* arq_log = fopen("880222_binaria.txt", "w");
-    
-    if(arq_log != NULL){
-        fprintf(arq_log, "880222\t Comparacoes: %d\t Tempo: %.4lf\n", comp, total_tempo);
-        fclose(arq_log);
-    }
-
 
     for (int i = 0; i < cr->tamanho; i++) {
         liberar_restaurante(&cr->restaurante[i]);//libero os vetores criado de cada posicao
     }
     free(cr->restaurante);//libero o vetor de colecao restaurante
-    free(r_ordenados);//libera o vetor de restaurantes ordenados
+
     free(cr);//libero a colecao
 }

@@ -1,5 +1,5 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 class Hora{
     private int hora;
@@ -32,7 +32,6 @@ class Hora{
         int hora = scan.nextInt();//leitura dos valores
         int minuto = scan.nextInt();
         Hora h = new Hora(hora,minuto);// criar o objeto hora
-        scan.close();
         return h;// retona a nova hora
     }
 
@@ -79,7 +78,7 @@ class Data{
     // parse de data 
     public static Data parseData(String s){ 
         Scanner scan = new Scanner(s);// scanner da string 
-        scan.useDelimiter("-");// delimitacao por -
+        scan.useDelimiter("-");// delimitacao pro -
         int ano = scan.nextInt();//leitura dos valores
         int mes = scan.nextInt();
         int dia = scan.nextInt();
@@ -364,123 +363,193 @@ class ColecaoRestaurantes{
      }
 }
 
+class lista{
+    int n;
+    Restaurante[] array;
+
+    public lista(int tamMax){
+        this.n = 0;
+        this.array = new Restaurante[tamMax];
+    }
+  
+  public void inserirInicio(Restaurante x) throws Exception {
+
+      //validar insercao
+      if(n >= array.length){
+         throw new Exception("Erro ao inserir!");
+      } 
+
+      //levar elementos para o fim do array
+      for(int i = n; i > 0; i--){
+         array[i] = array[i-1];
+      }
+
+      array[0] = x;
+      n++;
+   }
+
+
+   /**
+    * Insere um elemento na ultima posicao da lista.
+    * @param x int elemento a ser inserido.
+    * @throws Exception Se a lista estiver cheia.
+    */
+   public void inserirFim(Restaurante x) throws Exception {
+
+      //validar insercao
+      if(n >= array.length){
+         throw new Exception("Erro ao inserir!");
+      }
+
+      array[n] = x;
+      n++;
+   }
+
+
+   /**
+    * Insere um elemento em uma posicao especifica e move os demais
+    * elementos para o fim da lista.
+    * @param x int elemento a ser inserido.
+    * @param pos Posicao de insercao.
+    * @throws Exception Se a lista estiver cheia ou a posicao invalida.
+    */
+   public void inserir(Restaurante x, int pos) throws Exception {
+
+      //validar insercao
+      if(n >= array.length || pos < 0 || pos > n){
+         throw new Exception("Erro ao inserir!");
+      }
+
+      //levar elementos para o fim do array
+      for(int i = n; i > pos; i--){
+         array[i] = array[i-1];
+      }
+
+      array[pos] = x;
+      n++;
+   }
+
+
+   /**
+    * Remove um elemento da primeira posicao da lista e movimenta 
+    * os demais elementos para o inicio da mesma.
+    * @return resp int elemento a ser removido.
+    * @throws Exception Se a lista estiver vazia.
+    */
+   public Restaurante removerInicio() throws Exception {
+
+      //validar remocao
+      if (n == 0) {
+         throw new Exception("Erro ao remover!");
+      }
+
+      Restaurante resp = array[0];
+      n--;
+
+      for(int i = 0; i < n; i++){
+         array[i] = array[i+1];
+      }
+
+      return resp;
+   }
+
+
+   /**
+    * Remove um elemento da ultima posicao da lista.
+    * @return resp int elemento a ser removido.
+    * @throws Exception Se a lista estiver vazia.
+    */
+   public Restaurante removerFim() throws Exception {
+
+      //validar remocao
+      if (n == 0) {
+         throw new Exception("Erro ao remover!");
+      }
+
+      return array[--n];
+   }
+
+
+   /**
+    * Remove um elemento de uma posicao especifica da lista e 
+    * movimenta os demais elementos para o inicio da mesma.
+    * @param pos Posicao de remocao.
+    * @return resp int elemento a ser removido.
+    * @throws Exception Se a lista estiver vazia ou a posicao for invalida.
+    */
+   public Restaurante remover(int pos) throws Exception {
+
+      //validar remocao
+      if (n == 0 || pos < 0 || pos >= n) {
+         throw new Exception("Erro ao remover!");
+      }
+
+      Restaurante resp = array[pos];
+      n--;
+
+      for(int i = pos; i < n; i++){
+         array[i] = array[i+1];
+      }
+
+      return resp;
+   }
+
+    public void imprimir() {
+        for(int i = 0; i < n; i++) {
+            System.out.println(array[i].formatar());
+        }
+    }
+}
+
 public class Principal{
-     public static int mov = 0;
-     public static int comp = 0;
-   
-    public static void swap(Restaurante[] rest, int i, int j){
-			Restaurante aux = rest[i];
-			rest[i] = rest[j];
-			rest[j] = aux;
-			mov += 3;
-		}
 
-
-		public static void heapsort(Restaurante[] rest, int n){
-			Restaurante[] tmp = new Restaurante[n + 1]; // altera o vetor ignorando a posição zero
-			for(int i = 0; i < n; i++){
-				tmp[i + 1] = rest[i];
-			}
-				
-			
-			for(int tamHeap = 2; tamHeap <= n; tamHeap++){
-				construir(tmp,tamHeap);
-			}
-
-			int tamHeap = n;
-			while(tamHeap > 1){
-				swap(tmp,1,tamHeap--);
-				reconstruir(tmp,tamHeap);
-			}
-
-			
-			for(int i = 0; i < n; i++){
-				rest[i] = tmp[i + 1];
-			}
-		}
-		
-		public static void construir(Restaurante[] rest, int tamHeap){
-			for(int i = tamHeap; i > 1 && maiorData(rest[i],rest[i / 2]); i /= 2){
-				swap(rest, i, i/2);
-			}
-		}
-
-		public static void reconstruir(Restaurante[] rest, int tamHeap){
-			int i = 1;
-			while(i <= tamHeap/2){
-				int filho = getMaiorFilho(rest,i,tamHeap);
-				comp++;
-				if(maiorData(rest[filho], rest[i])){
-					swap(rest,i,filho);
-					i = filho;
-				}else{
-					break;
-				}
-			}		
-		}
-
-		public static int getMaiorFilho(Restaurante[] rest,int i, int tamHeap){
-			int filho;
-			comp++;
-			if(2 * i == tamHeap || maiorData(rest[2 * i], rest[2 * i + 1])){
-				filho = 2 * i;
-			}else{
-				filho = 2 * i + 1;
-			}
-			return filho;
-		}		
-
-
-		public static boolean maiorData(Restaurante r1, Restaurante r2){
-			Data d1 = r1.getDataAbertura();
-			Data d2 = r2. getDataAbertura();
-			
-			if(d1.getAno() != d2.getAno())
-				return d1.getAno() > d2.getAno(); //compara os anos
-			if(d1.getMes() != d2.getMes())
-				return d1.getMes() > d2.getMes();// se forem iguais, compara os meses
-			if(d1.getDia() != d2.getDia())
-				return d1.getDia() > d2.getDia(); // se forem iguais, comapara os dias
-			return r1.getNome().compareTo(r2.getNome()) > 0; // compara os nomes como desempate
-		}
-
-            public static void main(String[] args) throws Exception{
+     public static void main(String[] args) throws Exception{
             Scanner scan = new Scanner(System.in);//scaner para leitura da entrada
             ColecaoRestaurantes cr = ColecaoRestaurantes.lerCsv();//criar o colacao restaurante e preenche
-            Restaurante[] r = new Restaurante[1000];
-            int r_ordenados = 0;
-
-            double inicio, fim, total_t;
-
+            lista r = new lista(200);
             String linha = scan.next();// le a primeira linha do pub.in
                 
             while(linha.compareTo("-1") != 0){// verifica se é igual ao -1 para encerra
                int id = Integer.parseInt(linha);// parse int para pegar o valor de id
-               Restaurante aux = cr.buscarPorId(id);//busca o restaurante
-               if(aux != null){//verifica se é diferente de null
-                    r[r_ordenados] = aux;
-                    r_ordenados++;
+               
+               Restaurante tmp = cr.buscarPorId(id);//busca o restaurante
+               if(tmp != null){//verifica se é diferente de null
+                  r.inserirFim(tmp);
                }
 
                linha = scan.next();//leitura da proxima linha
             }
-            scan.close();// fechamanto do scan
+
+            scan.nextLine();
             
-            inicio = System.nanoTime();
-            heapsort(r,r_ordenados);
-            fim = System.nanoTime();
-  
-            total_t = (fim - inicio)/1_000_000.0;
 
-            //System.out.println("inicio: " + inicio + " " + "Fim: " + fim + " " + "Total: " + total_t);
-            for(int i = 0; i < r_ordenados; i++)
-                System.out.println(r[i].formatar());
-
-            FileWriter arq = new FileWriter("880222_merge.txt");
-            PrintWriter gravarArq = new PrintWriter(arq);
-
-            gravarArq.printf("880222\t Comparacoes: %d\t Movimentacao: %d\t Tempo: %.4f\n", comp, mov, total_t);
-
-            gravarArq.close();
+            int n = Integer.parseInt(scan.nextLine());
+            scan.useDelimiter("\\s+");
+            for(int i = 0; i < n; i++){
+                String entrada = scan.next();
+                if(entrada.charAt(0) == 'I' && entrada.charAt(1) == 'I'){
+                    int id = scan.nextInt();
+                    Restaurante aux = cr.buscarPorId(id);
+                    if (aux != null) r.inserirInicio(aux);
+                }else if(entrada.charAt(0) == 'I' && entrada.charAt(1) == '*'){
+                    int pos = scan.nextInt();
+                    int id  = scan.nextInt();
+                    Restaurante aux = cr.buscarPorId(id);
+                    if (aux != null) r.inserir(aux, pos);
+                }else if(entrada.charAt(0) == 'I' && entrada.charAt(1) == 'F'){
+                    int id = scan.nextInt();
+                    Restaurante aux = cr.buscarPorId(id);
+                    if (aux != null) r.inserirFim(aux);
+                }else if(entrada.charAt(0) == 'R' && entrada.charAt(1) == 'I'){
+                     System.out.println("(R)" + r.removerInicio().getNome());
+                }else if(entrada.charAt(0) == 'R' && entrada.charAt(1) == '*'){
+                     int pos = scan.nextInt();
+                     System.out.println("(R)" + r.remover(pos).getNome());
+                }else if(entrada.charAt(0) == 'R' && entrada.charAt(1) == 'F'){
+                     System.out.println("(R)" + r.removerFim().getNome());
+                }
+            }
+            scan.close();
+            r.imprimir();       
         }
  }
