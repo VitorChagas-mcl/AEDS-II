@@ -33,6 +33,11 @@ typedef struct ColecaoRestaurante{
     Restaurante* restaurante;
 }Colecao_Restaurante;
 
+typedef struct pilha{
+    int n;
+    Restaurante* restaurante;
+}Pilha;
+
 Data parse_data(char *s){
     Data d;
 
@@ -152,7 +157,7 @@ void ler_csv_colecao(Colecao_Restaurante* colecao, char* path){
     char linha[200];// pega o linha
 
     fgets(linha, sizeof(linha), arq);//leio o cabecalho
-    
+   
     int i = 0;//variavel para a quantidade
     while(fgets(linha, sizeof(linha), arq) != NULL){// leio ate o fgets retorna null
         Restaurante* aux = parse_restaurante(linha); //Criei um aux para o parse_restaurante
@@ -221,6 +226,29 @@ int transformarInt(char *s){// funcao para transforma o char em int
     return resposta;// retorno o valor do id
 }
 
+void inserirFim(Pilha* r, Restaurante* x, int tam) {
+
+   //validar insercao
+   if(r->n >= tam){
+      printf("Erro ao inserir!");
+      exit(1);
+   }
+
+   r->restaurante[r->n] = *x;
+   r->n++;
+}
+
+Restaurante removerFim(Pilha* r) {
+
+   //validar remocao
+   if (r->n == 0) {
+      printf("Erro ao remover!");
+      exit(1);
+   }
+
+   return r->restaurante[--r->n];
+}
+
 int main(){
    /*pequeno teste para ver se esta funcionando
     Data d = parse_data("2026-04-13");
@@ -233,25 +261,57 @@ int main(){
     printf("%s\n", s);*/
     //crio a colecao e retorno completo
     Colecao_Restaurante* cr = ler_csv();
-    
-    char linha[5];
+
+    int tam = 500;
+
+    Pilha *r = (Pilha*)malloc(sizeof(Pilha));
+    r->n = 0;
+    r->restaurante = (Restaurante*)malloc(tam * sizeof(Restaurante));
+
+    char linha[50];
     scanf("%s", linha);//leio a linha
     while(strcmp(linha, "-1") != 0){//comparo se é diferente de -1
         int id = transformarInt(linha);//transformo o valor
 
         int idBuscado = buscarId(cr, id);// busca o id na lista
         if(idBuscado != -1){//verifico se é diferete de -1
-            char leitura[300];
-            formatar_restaurante(&(cr->restaurante[idBuscado]), leitura);//fomato o restaurante e passo para o char leitura
-            printf("%s\n", leitura);//print do restaurante formatado
+            inserirFim(r, &cr->restaurante[idBuscado], tam);//inserindo os restaurantes todos no fim
         }
         scanf("%s", linha);// scan para a proxima linha
+    }
+    scanf("%s", linha);
+
+    int n = transformarInt(linha);
+    while(getchar() != '\n');//consome tudo ate o \n
+    int id;
+    char entrada[2];
+    for(int i = 0; i < n; i++){
+        fgets(linha, sizeof(linha), stdin);//leitura da entrada
+      
+        sscanf(linha,"%s %d", entrada, &id);
+        if(entrada[0] == 'I'){
+            int idx = buscarId(cr, id);//busca o id na colecao 
+            if(idx != -1)
+                inserirFim(r, &cr->restaurante[idx], tam);//inserir no fim
+        }
+
+        if(entrada[0] == 'R'){
+           Restaurante removido = removerFim(r);//pega o restaurante removido
+           printf("(R)%s\n", removido.nome);
+        }
+    }
+    
+    for(int i = r->n - 1; i >= 0; i--){//leitura do ultimo para o primeiro
+        char linha[300];
+        formatar_restaurante(&r->restaurante[i], linha);
+        printf("%s\n", linha);
     }
 
     for (int i = 0; i < cr->tamanho; i++) {
         liberar_restaurante(&cr->restaurante[i]);//libero os vetores criado de cada posicao
     }
     free(cr->restaurante);//libero o vetor de colecao restaurante
-
+    free(r->restaurante);//libera o vetor da pilha de restaurante
+    free(r);//libera a pilha
     free(cr);//libero a colecao
 }

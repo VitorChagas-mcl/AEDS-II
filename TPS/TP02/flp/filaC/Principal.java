@@ -363,22 +363,100 @@ class ColecaoRestaurantes{
      }
 }
 
+class Fila{
+    int primeiro, ultimo;
+    Restaurante[] array;
+
+    public Fila(int tamMax){
+        primeiro = ultimo = 0;
+        this.array = new Restaurante[tamMax + 1];
+    }
+
+  /**
+    * Insere um elemento na ultima posicao da fila.
+    * @param x int elemento a ser inserido.
+    * @throws Exception Se a fila estiver cheia.
+    */
+  public void inserir(Restaurante x) throws Exception {
+
+      //validar insercao
+      if(((ultimo + 1) % array.length) == primeiro){
+         System.out.println("(R)" + remover().getNome());
+      }
+      array[ultimo] = x;
+      ultimo = (ultimo + 1) % array.length;
+      System.out.println("(I)" + calcularMediaAno());
+   }
+
+   /**
+    * Remove um elemento da primeira posicao da fila e movimenta 
+    * os demais elementos para o primeiro da mesma.
+    * @return resp int elemento a ser removido.
+    * @throws Exception Se a fila estiver vazia.
+    */
+   public Restaurante remover() throws Exception {
+
+      //validar remocao
+      if (primeiro == ultimo) {
+         throw new Exception("Erro ao remover!");
+      }
+
+      Restaurante resp = array[primeiro];
+      primeiro = (primeiro + 1) % array.length;
+      return resp;
+   }
+
+   private int calcularMediaAno(){
+        int soma = 0, count = 0;
+        for(int i = primeiro; i != ultimo; i = (i+1) % array.length){
+            soma += array[i].getDataAbertura().getAno();
+            count++;
+        }
+        return (int) Math.round((double) soma / count);
+    }
+   
+    public void imprimir() {
+        for(int i = primeiro; i != ultimo; i = ((i+1)%array.length)) {
+            System.out.println(array[i].formatar());
+        }
+    }
+}
+
 public class Principal{
- 
-        public static void main(String[] args) throws Exception{
+
+     public static void main(String[] args) throws Exception{
             Scanner scan = new Scanner(System.in);//scaner para leitura da entrada
             ColecaoRestaurantes cr = ColecaoRestaurantes.lerCsv();//criar o colacao restaurante e preenche
+            Fila r = new Fila(5);
             String linha = scan.next();// le a primeira linha do pub.in
                 
             while(linha.compareTo("-1") != 0){// verifica se é igual ao -1 para encerra
                int id = Integer.parseInt(linha);// parse int para pegar o valor de id
-               Restaurante r = cr.buscarPorId(id);//busca o restaurante
-               if(r != null){//verifica se é diferente de null
-                  System.out.println(r.formatar());//se for printa o restaurante formatado
+               
+               Restaurante tmp = cr.buscarPorId(id);//busca o restaurante
+               if(tmp != null){//verifica se é diferente de null
+                  r.inserir(tmp);
                }
 
                linha = scan.next();//leitura da proxima linha
             }
-            scan.close();// fechamanto do scan
+
+            scan.nextLine();
+            
+
+            int n = Integer.parseInt(scan.nextLine());
+            scan.useDelimiter("\\s+");
+            for(int i = 0; i < n; i++){
+                String entrada = scan.next();
+                if(entrada.charAt(0) == 'I'){
+                    int id = scan.nextInt();
+                    Restaurante aux = cr.buscarPorId(id);
+                    if (aux != null) r.inserir(aux);
+                }else if(entrada.charAt(0) == 'R'){
+                     System.out.println("(R)" + r.remover().getNome());
+                }
+            }
+            scan.close();
+            r.imprimir();       
         }
  }
