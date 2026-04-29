@@ -363,22 +363,93 @@ class ColecaoRestaurantes{
      }
 }
 
+class Celula{
+    public Restaurante rest;
+    public Celula prox;
+
+    public Celula(){
+        this.rest = null;
+        this.prox = null;
+    }
+
+    public Celula(Restaurante rest){
+        this.rest = rest;
+        this.prox = null;
+    }
+}
+
+class PilhaFlex{
+    public Celula topo;
+
+    public PilhaFlex(){
+        topo = null;
+    }
+
+    public void inserir(Restaurante x){
+        Celula tmp = new Celula(x);
+        tmp.prox = topo;
+        topo = tmp;
+        tmp = null;
+    }
+
+    public Restaurante remover() throws Exception{
+        if(topo == null)
+            throw new Exception("Erro ao remover!");
+
+        Restaurante resp = topo.rest;
+        Celula tmp = topo;
+        topo = topo.prox;
+        tmp.prox = null;
+        tmp = null;
+        return resp;
+    }
+
+    public int tamanho(){
+        int tam = 0;
+        for(Celula i = topo; i != null; i = i.prox)
+            tam++;
+        
+        return tam;
+    }
+
+    public void mostrar(){
+        for(Celula i = topo; i != null; i = i.prox){
+            System.out.println(i.rest.formatar());
+        }
+    }
+}
+
 public class Principal{
  
         public static void main(String[] args) throws Exception{
             Scanner scan = new Scanner(System.in);//scaner para leitura da entrada
             ColecaoRestaurantes cr = ColecaoRestaurantes.lerCsv();//criar o colacao restaurante e preenche
             String linha = scan.next();// le a primeira linha do pub.in
-                
+            PilhaFlex p = new PilhaFlex();
             while(linha.compareTo("-1") != 0){// verifica se é igual ao -1 para encerra
                int id = Integer.parseInt(linha);// parse int para pegar o valor de id
                Restaurante r = cr.buscarPorId(id);//busca o restaurante
                if(r != null){//verifica se é diferente de null
-                  System.out.println(r.formatar());//se for printa o restaurante formatado
+                  p.inserir(r);
                }
 
                linha = scan.next();//leitura da proxima linha
             }
-            scan.close();// fechamanto do scan
+            
+            int n = scan.nextInt();
+            scan.useDelimiter("\\s+");
+            for(int i = 0; i < n; i++){
+                String entrada = scan.next();
+                if(entrada.charAt(0) == 'I'){
+                    int id = scan.nextInt();
+                    Restaurante aux = cr.buscarPorId(id);
+                    if (aux != null) p.inserir(aux);
+                }
+
+                if(entrada.charAt(0) == 'R'){
+                     System.out.println("(R)" + p.remover().getNome());
+                }
+            }
+            p.mostrar();
         }
  }
