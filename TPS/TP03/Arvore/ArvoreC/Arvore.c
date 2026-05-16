@@ -33,14 +33,22 @@ typedef struct ColecaoRestaurante{
     Restaurante* restaurante;
 }Colecao_Restaurante;
 
-typedef struct Celula{
-    struct Celula* prox;
-    Restaurante* restaurante;
-}Fila;
+typedef struct No{
+	Restaurante* elemento;
+	struct No* dir, *esq;
+}No;
 
-Fila* primeiro;
-Fila* ultimo;
+No* novoNo(Restaurante* x){
+	No* novo = (No*)malloc(sizeof(No));
+	novo->elemento = x;
+	novo->dir = novo->esq = NULL;
+}
 
+No* raiz;
+
+void start(){
+	raiz = NULL;
+}
 
 Data parse_data(char *s){
     Data d;
@@ -230,36 +238,57 @@ int transformarInt(char *s){// funcao para transforma o char em int
     return resposta;// retorno o valor do id
 }
 
-Fila* novaCelula(Restaurante* rest) {
-   Fila* nova = (Fila*) malloc(sizeof(Fila));
-   nova->restaurante = rest;
-   nova->prox = NULL;
-   return nova;
+No* inserirRec(Restaurante* x, No* i){
+	if(i == NULL){
+		i = novoNo(x);
+	}else if(strcmp(x->nome, i->elemento->nome) < 0){
+		i->esq = inserirRec(x, i->esq);
+	}else if(strcmp(x->nome, i->elemento->nome) > 0){
+		i->dir = inserirRec(x, i->dir);
+	}else{
+		printf("Erro ao inserir!\n");
+		return i;
+	}
+
+	return i;
 }
 
-void start () {
-   primeiro = novaCelula(NULL);
-   ultimo = primeiro;
+void inserir(Restaurante* x){
+	raiz = inserirRec(x, raiz);	
 }
 
-void inserir(Restaurante* x) {
-   ultimo->prox = novaCelula(x);
-   ultimo = ultimo->prox;
+int pesquisarRec(char* x, No* i){
+int resp = 1;
+	if(i == NULL){
+		resp = 1;
+	}else if(strcmp(i->elemento->nome, x) == 0){
+		resp = 0;
+	}else if(strcmp(i->elemento->nome, x) > 0){
+		printf("esq ", i->elemento);
+		resp = pesquisarRec(x, i->esq);		 	
+	}else {
+		printf("dir ", i->elemento);
+		resp = pesquisarRec(x, i->dir);
+	}
+	return resp;
 }
 
-Restaurante* remover() {
-    if (primeiro == ultimo) {
-      printf("Erro ao remover!\n");
-      return NULL;
-   }
-   Fila* tmp = primeiro;
-   primeiro = primeiro->prox;
-   Restaurante* resp = primeiro->restaurante;
-   tmp->prox = NULL;
-   free(tmp);
-   tmp = NULL;
-   return resp;
+int pesquisar(char* x){
+    printf("raiz ");
+	return pesquisarRec(x, raiz);
 }
+
+void caminharCentral(No* i){
+	
+	if(i != NULL){	
+		caminharCentral(i->esq);
+		char buffer[300];
+        formatar_restaurante(i->elemento, buffer);
+        printf("%s\n", buffer);
+		caminharCentral(i->dir);
+	}
+}
+
 
 int main(){
    /*pequeno teste para ver se esta funcionando
@@ -280,45 +309,35 @@ int main(){
     scanf("%s", linha);//leio a linha
     while(strcmp(linha, "-1") != 0){//comparo se é diferente de -1
         int id = transformarInt(linha);//transformo o valor
-
         int idBuscado = buscarId(cr, id);// busca o id na lista
         if(idBuscado != -1){//verifico se é diferete de -1
-            inserir(&cr->restaurante[idBuscado]);//inserindo os restaurantes todos no fim
+            inserir(&cr->restaurante[idBuscado]);
         }
         scanf("%s", linha);// scan para a proxima linha
     }
-    scanf("%s", linha);
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
 
-    int n = transformarInt(linha);
-    while(getchar() != '\n');//consome tudo ate o \n
-    int id;
-    char entrada[2];
-    for(int i = 0; i < n; i++){
-        fgets(linha, sizeof(linha), stdin);//leitura da entrada
-      
-        sscanf(linha,"%s %d", entrada, &id);
-        if(entrada[0] == 'I'){
-            int idx = buscarId(cr, id);//busca o id na colecao 
-            if(idx != -1)
-                inserir(&cr->restaurante[idx]);//inserir no fim
+    fgets(linha,sizeof(linha), stdin);
+    for(int i = 0; linha[i] != '\0';i++){
+        if(linha[i] == '\r' || linha[i] == '\n')
+            linha[i] = '\0';
+    }
+
+     while(strcmp(linha, "FIM") != 0){
+        if(pesquisar(linha) != 1){
+            printf("SIM\n");
+        }else{
+            printf("NAO\n");
         }
-
-        if(entrada[0] == 'R'){
-           Restaurante* removido = remover();//pega o restaurante removido
-           printf("(R)%s\n", removido->nome);
+        fgets(linha, sizeof(linha), stdin);
+        for(int i = 0; linha[i] != '\0';i++){
+            if(linha[i] == '\r' || linha[i] == '\n') {
+                linha[i] = '\0';
+            }
         }
     }
-    Fila* i;
-    for(i = primeiro->prox; i != NULL; i = i->prox){//leitura do primeiro pro ultimo
-        char linha[300];
-        formatar_restaurante(i->restaurante, linha);
-        printf("%s\n", linha);
-    }
+    caminharCentral(raiz);
     free(cr->restaurante);//libero o vetor de colecao restaurante
     free(cr);//libero a colecao
-
-    while(primeiro != ultimo) {
-        remover();
-    }
-    free(primeiro);
 }

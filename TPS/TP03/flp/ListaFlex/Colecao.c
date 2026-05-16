@@ -36,10 +36,10 @@ typedef struct ColecaoRestaurante{
 typedef struct Celula{
     struct Celula* prox;
     Restaurante* restaurante;
-}Fila;
+}Lista;
 
-Fila* primeiro;
-Fila* ultimo;
+Lista* primeiro;
+Lista* ultimo;
 
 
 Data parse_data(char *s){
@@ -229,9 +229,8 @@ int transformarInt(char *s){// funcao para transforma o char em int
     }
     return resposta;// retorno o valor do id
 }
-
-Fila* novaCelula(Restaurante* rest) {
-   Fila* nova = (Fila*) malloc(sizeof(Fila));
+Lista* novaCelula(Restaurante* rest) {
+   Lista* nova = (Lista*) malloc(sizeof(Lista));
    nova->restaurante = rest;
    nova->prox = NULL;
    return nova;
@@ -242,23 +241,98 @@ void start () {
    ultimo = primeiro;
 }
 
-void inserir(Restaurante* x) {
+int tamanho(){
+    int tam = 0;
+    for(Lista *i = primeiro->prox; i != NULL; i = i->prox, tam++);
+    return tam;
+}
+
+void inserirFim(Restaurante* x) {
    ultimo->prox = novaCelula(x);
    ultimo = ultimo->prox;
 }
 
-Restaurante* remover() {
+void inserirInicio(Restaurante* x){
+    Lista* tmp = novaCelula(x);
+    tmp->prox = primeiro->prox;
+    primeiro->prox = tmp;
+    if(primeiro == ultimo){
+        ultimo = tmp;
+    }
+}
+
+void inserir(Restaurante* x, int pos) {
+   int tam = tamanho();
+   if(pos < 0 || pos > tam){
+      printf("Erro ao inserir\n");
+      return;
+   } else if (pos == 0){
+      inserirInicio(x);
+   } else if (pos == tam){
+      inserirFim(x);
+   } else {
+      int j;
+      Lista* i = primeiro;
+      for(j = 0; j < pos; j++, i = i->prox);
+
+      Lista* tmp = novaCelula(x);
+      tmp->prox = i->prox;
+      i->prox = tmp;
+   }
+}
+
+Restaurante* removerInicio() {
+   if (primeiro == ultimo) {
+      printf("Erro ao remover!\n");
+      return NULL;
+   }
+   Lista* tmp = primeiro->prox;
+   Restaurante* resp = tmp->restaurante;
+   primeiro->prox = tmp->prox;
+   
+   if (ultimo == tmp) ultimo = primeiro;
+   
+   free(tmp);
+   return resp;
+}
+
+Restaurante* removerFim() {
     if (primeiro == ultimo) {
       printf("Erro ao remover!\n");
       return NULL;
    }
-   Fila* tmp = primeiro;
-   primeiro = primeiro->prox;
-   Restaurante* resp = primeiro->restaurante;
-   tmp->prox = NULL;
-   free(tmp);
-   tmp = NULL;
+   Lista* i;
+   for(i = primeiro; i->prox != ultimo; i = i->prox);
+
+   Restaurante* resp = ultimo->restaurante;
+   ultimo = i;
+   free(ultimo->prox);
+   ultimo->prox = NULL;
+
    return resp;
+}
+
+Restaurante* remover(int pos) {
+   int tam = tamanho();
+
+   if (primeiro == ultimo || pos < 0 || pos >= tam){
+      printf("Erro ao remover\n");
+      return NULL;
+   } else if (pos == 0){
+      return removerInicio();
+   } else if (pos == tam - 1){
+      return removerFim();
+   } else {
+      Lista* i = primeiro;
+      int j;
+      for(j = 0; j < pos; j++, i = i->prox);
+
+      Lista* tmp = i->prox;
+      Restaurante* resp = tmp->restaurante;
+      i->prox = tmp->prox; 
+      free(tmp);
+      return resp;
+   }
 }
 
 int main(){
@@ -283,42 +357,66 @@ int main(){
 
         int idBuscado = buscarId(cr, id);// busca o id na lista
         if(idBuscado != -1){//verifico se é diferete de -1
-            inserir(&cr->restaurante[idBuscado]);//inserindo os restaurantes todos no fim
+            inserirFim(&cr->restaurante[idBuscado]);//inserindo os restaurantes todos no fim
         }
         scanf("%s", linha);// scan para a proxima linha
     }
-    scanf("%s", linha);
 
-    int n = transformarInt(linha);
-    while(getchar() != '\n');//consome tudo ate o \n
-    int id;
-    char entrada[2];
+    int n;
+    scanf("%d", &n);
+
     for(int i = 0; i < n; i++){
-        fgets(linha, sizeof(linha), stdin);//leitura da entrada
-      
-        sscanf(linha,"%s %d", entrada, &id);
-        if(entrada[0] == 'I'){
-            int idx = buscarId(cr, id);//busca o id na colecao 
-            if(idx != -1)
-                inserir(&cr->restaurante[idx]);//inserir no fim
-        }
+        char entrada[5];
+        scanf("%s", entrada);
 
-        if(entrada[0] == 'R'){
-           Restaurante* removido = remover();//pega o restaurante removido
-           printf("(R)%s\n", removido->nome);
+        if(entrada[0] == 'I' && entrada[1] == 'I') {
+            int id; 
+            scanf("%d", &id);
+            inserirInicio(&cr->restaurante[buscarId(cr, id)]);
+        } 
+        else if(entrada[0] == 'I' && entrada[1] == 'F') {
+            int id; 
+            scanf("%d", &id);
+            inserirFim(&cr->restaurante[buscarId(cr, id)]);
+        } 
+        else if(entrada[0] == 'I' && entrada[1] == '*') {
+            int pos, id; 
+            scanf("%d %d", &pos, &id);
+            inserir(&cr->restaurante[buscarId(cr, id)], pos);
+        } 
+        else if(entrada[0] == 'R' && entrada[1] == 'I') {
+            Restaurante* removido = removerInicio();
+            if (removido != NULL) 
+                printf("(R)%s\n", removido->nome);
+        } 
+        else if(entrada[0] == 'R' && entrada[1] == 'F') {
+            Restaurante* removido = removerFim();
+            if (removido != NULL) 
+                printf("(R)%s\n", removido->nome);
+        } 
+        else if(entrada[0] == 'R' && entrada[1] == '*') {
+            int pos; 
+            scanf("%d", &pos);
+            Restaurante* removido = remover(pos);
+            if (removido != NULL) 
+                printf("(R)%s\n", removido->nome);
         }
     }
-    Fila* i;
-    for(i = primeiro->prox; i != NULL; i = i->prox){//leitura do primeiro pro ultimo
-        char linha[300];
-        formatar_restaurante(i->restaurante, linha);
-        printf("%s\n", linha);
+
+    Lista* i;
+    for(i = primeiro->prox; i != NULL; i = i->prox){
+        char buffer[300];
+        formatar_restaurante(i->restaurante, buffer);
+        printf("%s\n", buffer);
     }
-    free(cr->restaurante);//libero o vetor de colecao restaurante
-    free(cr);//libero a colecao
+
+    for (int j = 0; j < cr->tamanho; j++) {
+        liberar_restaurante(&cr->restaurante[j]);
+    }
+    free(cr->restaurante);
+    free(cr);
 
     while(primeiro != ultimo) {
-        remover();
+        removerInicio();
     }
-    free(primeiro);
-}
+    free(primeiro);}
