@@ -14,14 +14,13 @@ class No{
         this.nivel = 1 + (getNivel(dir) > getNivel(esq) ? getNivel(dir) : getNivel(esq));
     }
 
-    public int getNivel(No no){
+    private static int getNivel(No no){
         return (no == null) ? 0 : no.nivel;
     }
 
     public int getFatorBalanceamento(){
         return getNivel(dir) - getNivel(esq);
     }
-    
 }
 
 class Arvore{
@@ -47,7 +46,7 @@ class Arvore{
 			return i;
 		}
         i.setNivel();
-		return i;
+		return balancear(i);
 	}
 
 	public boolean pesquisar(int x){
@@ -100,14 +99,66 @@ class Arvore{
 			caminhaCentral(i.dir);
 		}
 	}
+
+    public No rotacaoSimplesEsq(No no){
+        No noDir = no.dir;
+        No noDirEsq = noDir.esq;
+
+        noDir.esq = no;
+        no.dir = noDirEsq;
+        no.setNivel();
+        noDir.setNivel();
+        return noDir;  
+    }
+
+    public No rotacaoSimplesDir(No no){
+        No noEsq = no.esq;
+        No noEsqDir = noEsq.dir;
+
+        noEsq.dir = no;
+        no.esq = noEsqDir;
+        no.setNivel();
+        noEsq.setNivel();
+        return noEsq;
+    }
+
+    public No rotacaoDuplaEsqDir(No no){
+        no.esq = rotacaoSimplesEsq(no.esq);
+        return rotacaoSimplesDir(no);
+    }
+
+    public No rotacaoDuplaDirEsq(No no){
+        no.dir = rotacaoSimplesDir(no.dir);
+        return rotacaoSimplesEsq(no);
+    }
+
+    private No balancear(No i){
+       int fator = i.getFatorBalanceamento();
+       if(fator == 2){
+            if(i.dir.getFatorBalanceamento() == 1 || i.dir.getFatorBalanceamento() == 0){
+                i = rotacaoSimplesEsq(i);
+            }else{
+                i = rotacaoDuplaDirEsq(i);
+            }
+       }else if(fator == -2){
+            if(i.esq.getFatorBalanceamento() == -1 || i.esq.getFatorBalanceamento() == 0){
+                i = rotacaoSimplesDir(i);
+            }else{
+                i = rotacaoDuplaEsqDir(i);
+            }
+       }
+       i.setNivel();
+       return i;
+    }
 }
+
 public class Principal{
 	public static void main(String[] args){
 		Arvore a = new Arvore();
 		int valor;
 		String leitura;
 		Scanner scan = new Scanner(System.in);
-		while(scan.hasNextLine()){
+		while(scan.hasNext()){
             leitura = scan.next();
 
             if(leitura.charAt(0) == 'I'){
