@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/AEDS-II.iml" filepath="$PROJECT_DIR$/AEDS-II.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LABS/LABS.iml" filepath="$PROJECT_DIR$/LABS/LABS.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TPS/TPS.iml" filepath="$PROJECT_DIR$/TPS/TPS.iml" />
+    </modules>
+  </component>
+</project>
