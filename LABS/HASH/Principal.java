@@ -50,12 +50,15 @@ class Hash{
     public boolean pesquisar(String chave){
         int pos = hash(chave);
         boolean resp = false;
-        if(isPosicaoLivre(pos) == false && tabela[pos].compareTo(chave) == 0){
+        if(isPosicaoLivre(pos) == true){
+            resp = false;
+        }else if (tabela[pos].compareTo(chave) == 0){
             resp = true;
-        }else{
-            for(int i = m; i < r; i++){
-                if(tabela[pos].compareTo(chave) == 0){
+        }else{ 
+            for(int i = m; i < m + nr; i++){
+                if(tabela[i].compareTo(chave) == 0){
                     resp = true;
+                    i = m + nr;
                 }
             }
         }
@@ -65,16 +68,19 @@ class Hash{
     public boolean remover(String chave){
         int pos = hash(chave);
         boolean resp = false;
-        if(isPosicaoLivre(pos) == false && tabela[pos].compareTo(chave) == 0){
+        if(isPosicaoLivre(pos) == true){
+            resp = false;
+        }else if (tabela[pos].compareTo(chave) == 0){
             resp = true;
-            tabela[pos] = null;
-        }else{
-            for(int i = m; i < r; i++){
-                if(tabela[pos].compareTo(chave) == 0){
+        }else{ 
+            for(int i = m; i < m + nr; i++){
+                if(tabela[i].compareTo(chave) == 0){
                     resp = true;
-                    tabela[pos] = null;
+                    tabela[i] = null;
+                    i = m + nr;
                 }
             }
+            
         }
         return resp;
     }
