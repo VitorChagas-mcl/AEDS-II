@@ -1,5 +1,9 @@
 import java.io.*;
 import java.util.*;
+class G {
+    public static int comp = 0;
+    public static int mov = 0;
+}
 
 class Hora{
     private int hora;
@@ -399,7 +403,9 @@ class Arvore{
 	}
 
 	public No inserir(Restaurante x, No i){
+        G.comp++;
 		if(i == null){
+            G.mov++; 
 			i = new No(x);
 		}else if(i.elemento.getNome().compareTo(x.getNome()) > 0){
 			i.esq = inserir(x, i.esq);
@@ -420,6 +426,7 @@ class Arvore{
 
 	public boolean pesquisar(String x, No i){
         boolean resp = false;
+        G.comp++;
 		if(i == null){
 			resp = false;
 		}else if(i.elemento.getNome().compareTo(x) == 0){
@@ -443,6 +450,7 @@ class Arvore{
 	}
 
     public No rotacaoSimplesEsq(No no){
+        G.mov++;
         No noDir = no.dir;
         No noDirEsq = noDir.esq;
 
@@ -454,6 +462,7 @@ class Arvore{
     }
 
     public No rotacaoSimplesDir(No no){
+        G.mov++;
         No noEsq = no.esq;
         No noEsqDir = noEsq.dir;
 
@@ -495,32 +504,41 @@ class Arvore{
 }
 
 public class Principal{
- 
-        public static void main(String[] args) throws Exception{
-            Scanner scan = new Scanner(System.in);//scaner para leitura da entrada
-            ColecaoRestaurantes cr = ColecaoRestaurantes.lerCsv();//criar o colacao restaurante e preenche
-            String linha = scan.next();// le a primeira linha do pub.in
-            Arvore resp = new Arvore();
-            while(linha.compareTo("-1") != 0){// verifica se é igual ao -1 para encerra
-               int id = Integer.parseInt(linha);// parse int para pegar o valor de id
-               Restaurante r = cr.buscarPorId(id);//busca o restaurante
-               if(r != null){//verifica se é diferente de null
-                resp.inserir(r);
-               }
+    public static void main(String[] args) throws Exception{
+        Scanner scan = new Scanner(System.in);//scaner para leitura da entrada
+        ColecaoRestaurantes cr = ColecaoRestaurantes.lerCsv();//criar o colacao restaurante e preenche
+        String linha = scan.next();// le a primeira linha do pub.in
+        Arvore resp = new Arvore();
+        
+        double inicio, fim, total_t;
+        while(linha.compareTo("-1") != 0){// verifica se é igual ao -1 para encerra
+            int id = Integer.parseInt(linha);// parse int para pegar o valor de id
+            Restaurante r = cr.buscarPorId(id);//busca o restaurante
+            if(r != null){//verifica se é diferente de null
+            resp.inserir(r);
+            }
 
-               linha = scan.next();//leitura da proxima linha
-            }
-          
-            scan.nextLine();
-            linha = scan.nextLine();
-            while(linha.compareTo("FIM") != 0){
-                if(resp.pesquisar(linha) == true)
-                    System.out.println("SIM");
-                else
-                    System.out.println("NAO");
-                linha = scan.nextLine();
-            }
-            resp.caminhaCentral(resp.raiz);
-           scan.close();
+            linha = scan.next();//leitura da proxima linha
         }
- }
+        
+        scan.nextLine();
+        linha = scan.nextLine();
+        inicio = System.nanoTime();
+        while(linha.compareTo("FIM") != 0){
+            if(resp.pesquisar(linha) == true)
+                System.out.println("SIM");
+            else
+                System.out.println("NAO");
+            linha = scan.nextLine();
+        }
+        fim = System.nanoTime();
+        FileWriter arq = new FileWriter("880222_quick_parcial.txt");
+        PrintWriter gravarArq = new PrintWriter(arq);
+        total_t = (fim - inicio) / 1_000_000.0;
+        gravarArq.printf("880222\t Comparacoes: %d\t Movimentacao: %d\t Tempo: %.4f\n", G.comp, G.mov, total_t);
+        resp.caminhaCentral(resp.raiz);
+        gravarArq.close();   
+        arq.close();
+        scan.close();
+    }
+}

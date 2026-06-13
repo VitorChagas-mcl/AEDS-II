@@ -2,3 +2,5 @@
 main
 output
 out
+.idea
+*.iml
