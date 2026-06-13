@@ -532,7 +532,7 @@ public class Principal{
             linha = scan.nextLine();
         }
         fim = System.nanoTime();
-        FileWriter arq = new FileWriter("880222_quick_parcial.txt");
+        FileWriter arq = new FileWriter("880222_arvore_avl.txt");
         PrintWriter gravarArq = new PrintWriter(arq);
         total_t = (fim - inicio) / 1_000_000.0;
         gravarArq.printf("880222\t Comparacoes: %d\t Movimentacao: %d\t Tempo: %.4f\n", G.comp, G.mov, total_t);

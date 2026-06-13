@@ -603,7 +603,7 @@ int main()
     }
     fim = clock();
     total_tempo = ((fim - inicio) / (double)CLOCKS_PER_SEC) * 1000.0;
-    FILE* arq_log = fopen("880222_Arvore_Binaria.txt", "w");
+    FILE* arq_log = fopen("880222_Arvore_bicolor.txt", "w");
     
     if(arq_log != NULL){
         fprintf(arq_log, "880222\t Comparacoes: %d\t Movimentos: %d\t Tempo: %.4lf\n", comp, mov, total_tempo);
