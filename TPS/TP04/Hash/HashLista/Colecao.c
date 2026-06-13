@@ -36,12 +36,15 @@ typedef struct ColecaoRestaurante{
     Restaurante* restaurante;
 }Colecao_Restaurante;
 
+typedef struct Celula{
+    Restaurante* restaurante;
+    struct Celula* prox;
+}Celula;
+
+
 typedef struct Hash{
-    Restaurante **tabela;
-    int m;
-    int r;
-    int nr;
     int tamTab;
+    Celula *tabela[];
 } Hash;
 
 Data parse_data(char *s){
@@ -233,10 +236,16 @@ int transformarInt(char *s){// funcao para transforma o char em int
 }
 
 void liberarHash(Hash *h) {
-    free(h->tabela);   // só o array de ponteiros
-    free(h);
+    for(int i = 0; i < h->tamTab; i++){
+        Celula *atual = h->tabela[i];
+        while(atual != NULL){
+            Celula *prox = atual->prox;
+            free(atual);      // libera a célula
+            atual = prox;
+        }
+    }
+    free(h); 
 }
-
 void tirarN(char *s){
     for(int i = 0; s[i] != '\0'; i++){
         if(s[i] == '\n' || s[i] == '\r'){
@@ -245,18 +254,22 @@ void tirarN(char *s){
     }
 }
 
-Hash* iniciarHash(int m, int r){
+Hash* iniciarHash(int tam){
     mov++;
-    Hash* h = (Hash*) malloc(sizeof(Hash));
-    h->m = m;
-    h->r = r;
-    h->nr = 0;
-    h->tabela = (Restaurante**) malloc((m + r) * sizeof(Restaurante*));
-    for(int i = 0; i < m + r; i++) {
+    Hash* h = (Hash*)malloc(sizeof(Hash) + tam * sizeof(Celula*));
+    if(h == NULL) return NULL;
+    h->tamTab = tam;
+    for(int i = 0; i < tam; i++){
         h->tabela[i] = NULL;
     }
-    h->tamTab = m + r;
     return h;
+}
+
+Celula* criarCelula(Restaurante *r) {
+    Celula *novo = (Celula*)malloc(sizeof(Celula));
+    novo->restaurante = r;
+    novo->prox = NULL;
+    return novo;
 }
 
 int hash(char *chave, Hash *h){
@@ -264,7 +277,7 @@ int hash(char *chave, Hash *h){
     for(int i = 0; chave[i] != '\0'; i++){
         soma += (int)chave[i];
     }
-    return soma % h->m;
+    return soma % h->tamTab;
 }
 
 bool isPosicaoLivre(int pos, Hash *h){
@@ -272,66 +285,28 @@ bool isPosicaoLivre(int pos, Hash *h){
     return (h->tabela[pos] == NULL);
 }
 
-int pesquisar(char *chave, Hash *h){
+int pesquisar(char *chave, Hash *h, int *posicao){
     int pos = hash(chave, h);
-    int resp = -1;
-    if (comp++, h->tabela[pos] != NULL && strcmp(h->tabela[pos]->nome, chave) == 0){
-        resp = pos;
-    }
-    
-    for(int i = h->m; i < h->m + h->nr; i++){
-        if(comp++, h->tabela[i] != NULL && strcmp(h->tabela[i]->nome, chave) == 0){
-            resp = i;
-            i = h->m + h->nr;// para o loop
+    *posicao = pos;
+    Celula *atual = h->tabela[pos];
+    int resp = false;;
+    while(atual != NULL){
+        if(comp++, strcmp(atual->restaurante->nome, chave) == 0){
+            resp = true;
         }
+        atual = atual->prox;
     }
     return resp;
 }
 
 void inserir(Restaurante *r, Hash *h){
     int pos = hash(r->nome, h);
-    if(comp++, isPosicaoLivre(pos, h) == true){
-        h->tabela[pos] = r;
-    }else if(comp++, h->nr < h->r){
-        h->tabela[h->m + h->nr] = r;
-        h->nr++;
-    }else{
-        printf("%s\n", r->nome);
-    }
+    Celula *novo = criarCelula(r);
+
+    novo->prox = h->tabela[pos];
+    h->tabela[pos] = novo;
 }
 
-bool remover(Restaurante *r, Hash *h){
-    int pos = hash(r->nome, h);
-    bool resp = false;
-    if(comp++, isPosicaoLivre(pos, h) == true){
-        resp = false;
-    }else if (comp++, strcmp(h->tabela[pos]->nome, r->nome) == 0){
-        resp = true;
-    }else{ 
-        for(int i = h->m; i < h->m + h->nr; i++){
-            if(comp++, strcmp(h->tabela[i]->nome, r->nome) == 0){
-                resp = true;
-                free(h->tabela[i]);
-                h->tabela[i] = NULL;
-                i = h->m + h->nr;
-            }
-        }
-        
-    }
-    return resp;
-}
-
-void imprimir(Hash *h){
-    char msg[500];
-    for(int i = 0; i < h->tamTab; i++){
-        if(h->tabela[i] != NULL){
-            formatar_restaurante(h->tabela[i], msg); 
-            printf("%d %s\n", i, msg);
-        } else {
-            printf("-1\n");
-        }
-    }
-}
 
 int main(){
    /*pequeno teste para ver se esta funcionando
@@ -347,7 +322,7 @@ int main(){
     Colecao_Restaurante* cr = ler_csv();
     clock_t inicio, fim;
     double total_tempo;
-    Hash* h = iniciarHash(31, 19);
+    Hash* h = iniciarHash(31);
     char linha[50];
     scanf("%s", linha);//leio a linha
     while(strcmp(linha, "-1") != 0){//comparo se é diferente de -1
@@ -370,12 +345,13 @@ int main(){
         inicio = clock();
         while (strcmp(linha, "FIM") != 0) {
             // AJUSTE 2: Retorna a posição exata encontrada na tabela
-            int posEncontrada = pesquisar(linha, h);
+            int posicao = 0;
+            int posEncontrada = pesquisar(linha, h, &posicao);
             
-            if (posEncontrada != -1) {
+            if (posEncontrada) {
                 char msg[300];
-                formatar_restaurante(h->tabela[posEncontrada], msg);
-                printf("%d %s\n", posEncontrada, msg);
+                formatar_restaurante(h->tabela[posicao]->restaurante, msg);
+                printf("%d %s\n", posicao, msg);
             } else {
                 printf("-1\n");
             }
@@ -386,7 +362,7 @@ int main(){
         fim = clock();
         total_tempo = ((fim - inicio) / (double)CLOCKS_PER_SEC) * 1000.0; 
     }
-    FILE* arq_log = fopen("880222_hash_reservada.txt", "w");
+    FILE* arq_log = fopen("880222_hash_indireta.txt", "w");
     
     if(arq_log != NULL){
         fprintf(arq_log, "880222\t Comparacoes: %d\t Movimentos: %d\t Tempo: %.4lf\n", comp, mov, total_tempo);
