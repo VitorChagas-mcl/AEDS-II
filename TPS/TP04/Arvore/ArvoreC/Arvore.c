@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <time.h>
 // criei todas as structs que preciso
 int comp = 0;
 int mov = 0;//variasveis para contagem de comparacoes e movimentos

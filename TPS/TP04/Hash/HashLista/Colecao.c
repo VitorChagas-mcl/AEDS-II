@@ -257,7 +257,6 @@ void tirarN(char *s){
 Hash* iniciarHash(int tam){
     mov++;
     Hash* h = (Hash*)malloc(sizeof(Hash) + tam * sizeof(Celula*));
-    if(h == NULL) return NULL;
     h->tamTab = tam;
     for(int i = 0; i < tam; i++){
         h->tabela[i] = NULL;
@@ -285,14 +284,14 @@ bool isPosicaoLivre(int pos, Hash *h){
     return (h->tabela[pos] == NULL);
 }
 
-int pesquisar(char *chave, Hash *h, int *posicao){
+Restaurante* pesquisar(char *chave, Hash *h, int *posicao){
     int pos = hash(chave, h);
     *posicao = pos;
     Celula *atual = h->tabela[pos];
-    int resp = false;;
+    Restaurante* resp =  NULL;
     while(atual != NULL){
         if(comp++, strcmp(atual->restaurante->nome, chave) == 0){
-            resp = true;
+            resp = atual->restaurante;
         }
         atual = atual->prox;
     }
@@ -339,29 +338,25 @@ int main(){
 
     fgets(linha, sizeof(linha), stdin);
     tirarN(linha);
-
-    if(fgets(linha, sizeof(linha), stdin) != NULL) {
-        tirarN(linha);
-        inicio = clock();
-        while (strcmp(linha, "FIM") != 0) {
-            // AJUSTE 2: Retorna a posição exata encontrada na tabela
-            int posicao = 0;
-            int posEncontrada = pesquisar(linha, h, &posicao);
+    inicio = clock();
+    while (strcmp(linha, "FIM") != 0) {
+        int posicao = 0;
+        Restaurante* posEncontrada = pesquisar(linha, h, &posicao);
             
-            if (posEncontrada) {
-                char msg[300];
-                formatar_restaurante(h->tabela[posicao]->restaurante, msg);
-                printf("%d %s\n", posicao, msg);
-            } else {
-                printf("-1\n");
-            }
-            
-            if(fgets(linha, sizeof(linha), stdin) == NULL) break;
-            tirarN(linha);
+        if (posEncontrada != NULL) {
+            char msg[300];
+            formatar_restaurante(posEncontrada, msg);
+            printf("%d %s\n", posicao, msg);
+        } else {
+            printf("-1\n");
         }
-        fim = clock();
-        total_tempo = ((fim - inicio) / (double)CLOCKS_PER_SEC) * 1000.0; 
+            
+        fgets(linha, sizeof(linha), stdin);
+        tirarN(linha);
     }
+    fim = clock();
+    total_tempo = ((fim - inicio) / (double)CLOCKS_PER_SEC) * 1000.0; 
+ 
     FILE* arq_log = fopen("880222_hash_indireta.txt", "w");
     
     if(arq_log != NULL){

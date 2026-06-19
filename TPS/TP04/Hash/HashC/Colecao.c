@@ -255,7 +255,7 @@ Hash* iniciarHash(int m, int r){
     for(int i = 0; i < m + r; i++) {
         h->tabela[i] = NULL;
     }
-    h->tamTab = m + r;
+    h->tamTab = m;
     return h;
 }
 
@@ -364,28 +364,23 @@ int main(){
 
     fgets(linha, sizeof(linha), stdin);
     tirarN(linha);
-
-    if(fgets(linha, sizeof(linha), stdin) != NULL) {
-        tirarN(linha);
-        inicio = clock();
-        while (strcmp(linha, "FIM") != 0) {
-            // AJUSTE 2: Retorna a posição exata encontrada na tabela
-            int posEncontrada = pesquisar(linha, h);
+    inicio = clock();
+    while (strcmp(linha, "FIM") != 0) {
+        int posEncontrada = pesquisar(linha, h);
             
-            if (posEncontrada != -1) {
-                char msg[300];
-                formatar_restaurante(h->tabela[posEncontrada], msg);
-                printf("%d %s\n", posEncontrada, msg);
-            } else {
-                printf("-1\n");
-            }
-            
-            if(fgets(linha, sizeof(linha), stdin) == NULL) break;
-            tirarN(linha);
+        if (posEncontrada != -1) {
+            char msg[300];
+            formatar_restaurante(h->tabela[posEncontrada], msg);
+            printf("%d %s\n", posEncontrada, msg);
+        } else {
+            printf("-1\n");
         }
-        fim = clock();
-        total_tempo = ((fim - inicio) / (double)CLOCKS_PER_SEC) * 1000.0; 
-    }
+            
+        fgets(linha, sizeof(linha), stdin);
+        tirarN(linha);
+        }
+    fim = clock();
+    total_tempo = ((fim - inicio) / (double)CLOCKS_PER_SEC) * 1000.0; 
     FILE* arq_log = fopen("880222_hash_reservada.txt", "w");
     
     if(arq_log != NULL){

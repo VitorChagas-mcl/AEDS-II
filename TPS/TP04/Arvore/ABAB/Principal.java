@@ -1,9 +1,11 @@
 import java.io.*;
 import java.util.*;
+
 class G {
     public static int comp = 0;
     public static int mov = 0;
 }
+
 
 class Hora{
     private int hora;
@@ -367,12 +369,12 @@ class ColecaoRestaurantes{
      }
 }
 
-class No{
+class No2{
 	public Restaurante elemento;
-	public No dir, esq;
+	public No2 dir, esq;
     public int nivel;
 
-	public No(Restaurante x){
+	public No2(Restaurante x){
 		this.elemento = x;
 		this.dir = this.esq = null;
         this.nivel = 1;
@@ -382,7 +384,7 @@ class No{
         this.nivel = 1 + (getNivel(dir) > getNivel(esq) ? getNivel(dir) : getNivel(esq));
     }
 
-    private static int getNivel(No no){
+    private static int getNivel(No2 no){
         return (no == null) ? 0 : no.nivel;
     }
 
@@ -391,68 +393,30 @@ class No{
     }
 }
 
+class No{
+	public int elemento;
+    public No2 no2;
+	public No dir, esq;
+
+	public No(int elemento){
+		this.elemento = elemento;
+		this.dir = this.esq = null;
+        this.no2 = null;
+	}
+}
+
 class Arvore{
 	public No raiz;
-
+    public Restaurante encontrado;
 	public Arvore(){
-		this.raiz = null;	
+		this.raiz = null;
+        criarArvore();
 	}
 
-	public void inserir(Restaurante x){
-		raiz = inserir(x, raiz);
-	}
-
-        public No inserir(Restaurante x, No i){
-            G.comp++;
-            if(i == null){
-                G.mov++; 
-                i = new No(x);
-            }else if(i.elemento.getNome().compareTo(x.getNome()) > 0){
-                i.esq = inserir(x, i.esq);
-            }else if(i.elemento.getNome().compareTo(x.getNome()) < 0){
-                i.dir = inserir(x, i.dir);
-            }else{
-                System.out.println("Erro ao inserir");
-                return i;
-            }
-            i.setNivel();
-            return balancear(i);
-        }
-
-	public boolean pesquisar(String x){
-        System.out.print("raiz ");
-		return pesquisar(x, raiz);
-	}
-
-	public boolean pesquisar(String x, No i){
-        boolean resp = false;
-        G.comp++;
-		if(i == null){
-			resp = false;
-		}else if(i.elemento.getNome().compareTo(x) == 0){
-			resp = true;
-		}else if(i.elemento.getNome().compareTo(x) > 0){
-            System.out.print("esq ");
-			resp = pesquisar(x, i.esq);
-		}else{
-            System.out.print("dir ");
-			resp = pesquisar(x, i.dir);
-		}
-		return resp;
-	}
-
-	public void caminhaCentral(No i){
-		if(i != null){	
-			caminhaCentral(i.esq);
-            System.out.println(i.elemento.formatar());		
-			caminhaCentral(i.dir);
-		}
-	}
-
-    public No rotacaoSimplesEsq(No no){
+    public No2 rotacaoSimplesEsq(No2 no){
         G.mov++;
-        No noDir = no.dir;
-        No noDirEsq = noDir.esq;
+        No2 noDir = no.dir;
+        No2 noDirEsq = noDir.esq;
 
         noDir.esq = no;
         no.dir = noDirEsq;
@@ -461,10 +425,10 @@ class Arvore{
         return noDir;
     }
 
-    public No rotacaoSimplesDir(No no){
+    public No2 rotacaoSimplesDir(No2 no){
         G.mov++;
-        No noEsq = no.esq;
-        No noEsqDir = noEsq.dir;
+        No2 noEsq = no.esq;
+        No2 noEsqDir = noEsq.dir;
 
         noEsq.dir = no;
         no.esq = noEsqDir;
@@ -473,17 +437,17 @@ class Arvore{
         return noEsq;
     }
 
-    public No rotacaoDuplaEsqDir(No no){
+    public No2 rotacaoDuplaEsqDir(No2 no){
         no.esq = rotacaoSimplesEsq(no.esq);
         return rotacaoSimplesDir(no);
     }
 
-    public No rotacaoDuplaDirEsq(No no){
+    public No2 rotacaoDuplaDirEsq(No2 no){
         no.dir = rotacaoSimplesDir(no.dir);
         return rotacaoSimplesEsq(no);
     }
 
-    private No balancear(No i){
+    private No2 balancear(No2 i){
        int fator = i.getFatorBalanceamento();
        if(fator == 2){
             if(i.dir.getFatorBalanceamento() == 1 || i.dir.getFatorBalanceamento() == 0){
@@ -501,43 +465,158 @@ class Arvore{
        i.setNivel();
        return i;
     }
+
+    private int pegarMod(Restaurante r){
+        return r.getCapacidade() % 15;
+    }
+
+
+	private No2 inserir(Restaurante x, No2 i){
+        G.comp++;
+		if(i == null){
+            G.mov++; 
+			i = new No2(x);
+		}else if(x.getNome().compareTo(i.elemento.getNome()) < 0){
+			i.esq = inserir(x, i.esq);
+		}else{
+			i.dir = inserir(x, i.dir);
+		}
+        i.setNivel();
+		return balancear(i);
+	}
+
+    private void criarArvore(){
+        int[] chaves = {7, 3, 11, 1, 5, 9, 13,4, 6};
+        for(int chave : chaves)
+            raiz = inserirNoPrimeiro(chave, raiz);
+    }
+
+	public void inserir(Restaurante r) {
+        int chave = pegarMod(r);
+        No no1 = buscarNoPrimario(chave, raiz);
+        
+        if (no1 != null) {
+            no1.no2 = inserir(r, no1.no2);
+        }
+    }
+
+	private No inserirNoPrimeiro(int x, No i){
+        if(i == null){
+			i = new No(x);
+		}else if(x < i.elemento){
+			i.esq = inserirNoPrimeiro(x, i.esq);
+		}else if(x > i.elemento){
+			i.dir = inserirNoPrimeiro(x, i.dir);
+		}
+        return i;
+	}
+
+    private No buscarNoPrimario(int chave, No no) {
+        No resp = null;
+        if (no == null) {
+            resp = null;
+        } else if (chave == no.elemento) {
+            resp = no;
+        } else if (chave < no.elemento) {
+            resp = buscarNoPrimario(chave, no.esq);
+        } else {
+            resp = buscarNoPrimario(chave, no.dir);
+        }
+
+        return resp;
+    }
+
+	public boolean pesquisar(String x){
+        System.out.print("RAIZ ");
+		return pesquisarNaPrimeira(x, raiz);
+	}
+
+    public boolean pesquisarNaPrimeira(String x, No i){
+        boolean resp = false;
+    
+        if (i != null) {
+                System.out.print("raiz ");
+                resp = pesquisarNaSegunda(x, i.no2);
+                
+                if(!resp) {
+                    System.out.print("ESQ ");
+                    resp = pesquisarNaPrimeira(x, i.esq);
+                }
+
+                if(!resp) {
+                    System.out.print("DIR ");
+                    resp = pesquisarNaPrimeira(x, i.dir);
+                }
+           
+        }
+    
+        return resp;
+    }       
+    public boolean pesquisarNaSegunda(String x, No2 i){
+        boolean resp = false;
+        if(i == null){
+            resp = false;
+        }else if(i.elemento.getNome().compareTo(x) == 0){
+            resp = true;
+            this.encontrado = i.elemento;
+        }else if(x.compareTo(i.elemento.getNome()) < 0){
+            //System.out.println("Debug esq " + i.elemento.formatar() + " ");
+            System.out.print("esq ");
+            resp = pesquisarNaSegunda(x, i.esq);
+        }else{
+            System.out.print("dir "); 
+            //System.out.println("Debug dir " + i.elemento.formatar() + " ");
+            resp = pesquisarNaSegunda(x, i.dir);
+        }
+        return resp;
+    }
+    
+    public void caminhaCentral(No i){
+		if(i != null){	
+			caminhaCentral(i.esq);
+             		
+			caminhaCentral(i.dir);
+		}
+	}
 }
 
 public class Principal{
-    public static void main(String[] args) throws Exception{
-        Scanner scan = new Scanner(System.in);//scaner para leitura da entrada
-        ColecaoRestaurantes cr = ColecaoRestaurantes.lerCsv();//criar o colacao restaurante e preenche
-        String linha = scan.next();// le a primeira linha do pub.in
-        Arvore resp = new Arvore();
-        
-        double inicio, fim, total_t;
-        while(linha.compareTo("-1") != 0){// verifica se é igual ao -1 para encerra
-            int id = Integer.parseInt(linha);// parse int para pegar o valor de id
-            Restaurante r = cr.buscarPorId(id);//busca o restaurante
-            if(r != null){//verifica se é diferente de null
+ 
+        public static void main(String[] args) throws Exception{
+           Scanner scan = new Scanner(System.in);//scaner para leitura da entrada
+            ColecaoRestaurantes cr = ColecaoRestaurantes.lerCsv();//criar o colacao restaurante e preenche
+            String linha = scan.next();// le a primeira linha do pub.in
+            Arvore resp = new Arvore();
+            double inicio, fim, total_t;
+            while(linha.compareTo("-1") != 0){// verifica se é igual ao -1 para encerra
+               int id = Integer.parseInt(linha);// parse int para pegar o valor de id
+               Restaurante r = cr.buscarPorId(id);//busca o restaurante
+               if(r != null){//verifica se é diferente de null
                 resp.inserir(r);
-            }
+               }
 
-            linha = scan.next();//leitura da proxima linha
-        }
-        
-        scan.nextLine();
-        linha = scan.nextLine();
-        inicio = System.nanoTime();
-        while(linha.compareTo("FIM") != 0){
-            if(resp.pesquisar(linha) == true)
-                System.out.println("SIM");
-            else
-                System.out.println("NAO");
+               linha = scan.next();//leitura da proxima linha
+            }
+          
+            inicio = System.nanoTime();  
+            scan.nextLine();
             linha = scan.nextLine();
+            while(linha.compareTo("FIM") != 0){
+                if(resp.pesquisar(linha) == true){
+                    System.out.print("SIM ");
+                    System.out.println(resp.encontrado.formatar());
+                }else{
+                    System.out.println("NAO");
+                }
+                linha = scan.nextLine();
+            }
+            fim = System.nanoTime();
+            FileWriter arq = new FileWriter("880222_hibrida_arvore_arvore.txt");
+            PrintWriter gravarArq = new PrintWriter(arq);
+            total_t = (fim - inicio) / 1_000_000.0;
+            gravarArq.printf("880222\t Comparacoes: %d\t Movimentacao: %d\t Tempo: %.4f\n", G.comp, G.mov, total_t);
+            gravarArq.close();   
+            arq.close();
+            scan.close();
         }
-        fim = System.nanoTime();
-        FileWriter arq = new FileWriter("880222_arvore_avl.txt");
-        PrintWriter gravarArq = new PrintWriter(arq);
-        total_t = (fim - inicio) / 1_000_000.0;
-        gravarArq.printf("880222\t Comparacoes: %d\t Movimentacao: %d\t Tempo: %.4f\n", G.comp, G.mov, total_t);
-        gravarArq.close();   
-        arq.close();
-        scan.close();
-    }
-}
+ }
