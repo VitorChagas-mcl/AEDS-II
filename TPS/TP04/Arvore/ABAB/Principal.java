@@ -410,7 +410,6 @@ class Arvore{
     public Restaurante encontrado;
 	public Arvore(){
 		this.raiz = null;
-        criarArvore();
 	}
 
     public No2 rotacaoSimplesEsq(No2 no){
@@ -466,17 +465,14 @@ class Arvore{
        return i;
     }
 
-    private int pegarMod(Restaurante r){
-        return r.getCapacidade() % 15;
-    }
-
-
 	private No2 inserir(Restaurante x, No2 i){
         G.comp++;
 		if(i == null){
             G.mov++; 
 			i = new No2(x);
-		}else if(x.getNome().compareTo(i.elemento.getNome()) < 0){
+		}else if(x.getNome().compareTo(i.elemento.getNome()) == 0){
+            System.out.println("ERRO");
+        }else if(x.getNome().compareTo(i.elemento.getNome()) < 0){
 			i.esq = inserir(x, i.esq);
 		}else{
 			i.dir = inserir(x, i.dir);
@@ -485,45 +481,41 @@ class Arvore{
 		return balancear(i);
 	}
 
-    private void criarArvore(){
-        int[] chaves = {7, 3, 11, 1, 5, 9, 13,4, 6};
-        for(int chave : chaves)
-            raiz = inserirNoPrimeiro(chave, raiz);
+	public void inserirNaPrimeira(int elemento) throws Exception{
+            raiz = inserirNaPrimeira(raiz, elemento);
     }
-
-	public void inserir(Restaurante r) {
-        int chave = pegarMod(r);
-        No no1 = buscarNoPrimario(chave, raiz);
-        
-        if (no1 != null) {
-            no1.no2 = inserir(r, no1.no2);
+    private No inserirNaPrimeira(No i, int elemento) throws Exception{
+        if(i == null)
+        {
+            i = new No(elemento);
         }
-    }
-
-	private No inserirNoPrimeiro(int x, No i){
-        if(i == null){
-			i = new No(x);
-		}else if(x < i.elemento){
-			i.esq = inserirNoPrimeiro(x, i.esq);
-		}else if(x > i.elemento){
-			i.dir = inserirNoPrimeiro(x, i.dir);
-		}
+        else if(elemento < i.elemento)
+        {
+            i.esq = inserirNaPrimeira(i.esq, elemento);
+        }
+        else if(elemento > i.elemento)
+        {
+            i.dir = inserirNaPrimeira(i.dir, elemento);
+        }
         return i;
-	}
+    }
 
-    private No buscarNoPrimario(int chave, No no) {
-        No resp = null;
-        if (no == null) {
-            resp = null;
-        } else if (chave == no.elemento) {
-            resp = no;
-        } else if (chave < no.elemento) {
-            resp = buscarNoPrimario(chave, no.esq);
-        } else {
-            resp = buscarNoPrimario(chave, no.dir);
+    public void inserirNaPrimeira(Restaurante r) throws Exception{
+            inserirNaPrimeira(r, raiz);
+    }
+    
+    public void inserirNaPrimeira(Restaurante r, No i) throws Exception{
+        if(i == null){
+            throw new Exception("Erro ao inserir!");
         }
-
-        return resp;
+        else if((r.getCapacidade() % 15) < i.elemento){
+            inserirNaPrimeira(r, i.esq);
+        }else if((r.getCapacidade() % 15) > i.elemento){
+            inserirNaPrimeira(r, i.dir);
+        }
+        else{
+            i.no2 = inserir(r, i.no2);
+        }
     }
 
 	public boolean pesquisar(String x){
@@ -533,25 +525,23 @@ class Arvore{
 
     public boolean pesquisarNaPrimeira(String x, No i){
         boolean resp = false;
-    
-        if (i != null) {
-                System.out.print("raiz ");
-                resp = pesquisarNaSegunda(x, i.no2);
-                
-                if(!resp) {
-                    System.out.print("ESQ ");
-                    resp = pesquisarNaPrimeira(x, i.esq);
-                }
-
-                if(!resp) {
-                    System.out.print("DIR ");
-                    resp = pesquisarNaPrimeira(x, i.dir);
-                }
-           
+        if (i == null) return false;
+        
+        System.out.print("raiz ");
+        resp = pesquisarNaSegunda(x, i.no2);
+        
+        if (!resp) {
+            System.out.print("ESQ ");
+            resp = pesquisarNaPrimeira(x, i.esq);
         }
-    
+        
+        if (!resp) {
+            System.out.print("DIR ");
+            resp = pesquisarNaPrimeira(x, i.dir);
+        }
+        
         return resp;
-    }       
+    }    
     public boolean pesquisarNaSegunda(String x, No2 i){
         boolean resp = false;
         if(i == null){
@@ -583,7 +573,7 @@ class Arvore{
 public class Principal{
  
         public static void main(String[] args) throws Exception{
-           Scanner scan = new Scanner(System.in);//scaner para leitura da entrada
+            Scanner scan = new Scanner(System.in);//scaner para leitura da entrada
             ColecaoRestaurantes cr = ColecaoRestaurantes.lerCsv();//criar o colacao restaurante e preenche
             String linha = scan.next();// le a primeira linha do pub.in
             Arvore resp = new Arvore();
@@ -592,7 +582,9 @@ public class Principal{
                int id = Integer.parseInt(linha);// parse int para pegar o valor de id
                Restaurante r = cr.buscarPorId(id);//busca o restaurante
                if(r != null){//verifica se é diferente de null
-                resp.inserir(r);
+                    int mod = r.getCapacidade() % 15;
+                    resp.inserirNaPrimeira(mod);
+                    resp.inserirNaPrimeira(r);
                }
 
                linha = scan.next();//leitura da proxima linha
