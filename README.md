@@ -19,8 +19,11 @@ Centralizar os códigos produzidos durante a disciplina, servindo como:
 
 ## 📂 Estrutura do Repositório
 -`LABS/` → Atividades práticas de laboratório.
+
 -`PROVAS/` → Questões e resoluções de provas.
+
 -`TPS/` → Trabalhos Práticos.
+
 -`VERDE/` → Atividades avaliativas do semestre.
 
 
